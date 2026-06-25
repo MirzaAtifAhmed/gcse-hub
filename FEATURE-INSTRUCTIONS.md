@@ -1,34 +1,26 @@
-# Feature: Exam Generator Foundation
+# 001 - Exam Attempts API
 
-Apply with Merge/Replace after `feat: add dynamic maths question generators`.
+Apply after `feat: add exam generator foundation`.
 
 ## Run
 
 ```bash
 yarn typecheck
 yarn build
-yarn dev
 ```
 
-## Included
+## Adds
 
-- Exam paper type definitions
-- Maths exam generator service
-- 30, 45 and 60 minute paper generation
-- Balanced mixed-topic questions
-- Full answer/solution paper included
-- API endpoint for generated exams
-- Student dashboard exam preview
-
-## API
-
-```text
-GET /api/exams/generate?year=8&durationMinutes=60
-```
+- MongoDB model for exam attempts
+- Start exam attempt
+- Save answer
+- Submit exam
+- Mark answers
+- Return score
 
 ## Commit
 
 ```bash
 git add .
-git commit -m "feat: add exam generator foundation"
+git commit -m "feat: add exam attempts api"
 ```
