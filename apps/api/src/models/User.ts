@@ -18,6 +18,7 @@ const userSchema = new Schema(
       enum: ['foundation', 'higher', 'undecided'],
       default: 'undecided',
     },
+    parentId: { type: Schema.Types.ObjectId, ref: 'User' },
     linkedChildren: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true },
@@ -30,6 +31,7 @@ userSchema.methods.comparePassword = function comparePassword(password: string) 
 export type UserDocument = InferSchemaType<typeof userSchema> & {
   _id: mongoose.Types.ObjectId;
   comparePassword(password: string): Promise<boolean>;
+  createdAt?: Date;
 };
 
 export const User = mongoose.model<UserDocument>('User', userSchema);

@@ -6,17 +6,14 @@ import morgan from 'morgan';
 import { ZodError } from 'zod';
 import { env } from './config/env.js';
 import { authRoutes } from './routes/authRoutes.js';
+import { childrenRoutes } from './routes/childrenRoutes.js';
+import { curriculumRoutes } from './routes/curriculumRoutes.js';
 import { dashboardRoutes } from './routes/dashboardRoutes.js';
 
 export const app = express();
 
 app.use(helmet());
-app.use(
-  cors({
-    origin: env.CLIENT_URL,
-    credentials: true,
-  }),
-);
+app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
@@ -27,6 +24,8 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/children', childrenRoutes);
+app.use('/api/curriculum', curriculumRoutes);
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err instanceof ZodError) {

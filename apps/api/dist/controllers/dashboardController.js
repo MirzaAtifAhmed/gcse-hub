@@ -1,16 +1,23 @@
-import { DEFAULT_SUBJECTS } from '@gcse-hub/shared';
+import { Subject } from '../models/Subject.js';
 import { User } from '../models/User.js';
-import { toAuthUser } from '../utils/toAuthUser.js';
+import { toAuthUser, toChildProfile, toSubjectDto } from '../utils/mappers.js';
 export async function getDashboard(req, res) {
     const user = await User.findById(req.user?.id);
     if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
     }
+    const [subjects, children] = await Promise.all([
+        Subject.find({ isActive: true }).sort({ name: 1 }),
+        user.role === 'parent'
+            ? User.find({ parentId: user._id, role: 'student' }).sort({ createdAt: -1 })
+            : Promise.resolve([]),
+    ]);
     return res.json({
         success: true,
         data: {
             user: toAuthUser(user),
-            subjects: DEFAULT_SUBJECTS.map((subject, index) => ({ id: String(index + 1), ...subject })),
+            subjects: subjects.map(toSubjectDto),
+            children: children.map(toChildProfile),
             stats: {
                 questionsAnswered: 0,
                 accuracy: 0,

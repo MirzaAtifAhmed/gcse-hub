@@ -16,6 +16,7 @@ const userSchema = new Schema({
         enum: ['foundation', 'higher', 'undecided'],
         default: 'undecided',
     },
+    parentId: { type: Schema.Types.ObjectId, ref: 'User' },
     linkedChildren: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
 userSchema.methods.comparePassword = function comparePassword(password) {

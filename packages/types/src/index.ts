@@ -34,6 +34,24 @@ export interface ChildProfile {
   createdAt?: string;
 }
 
+export interface WorkedSolutionStep {
+  order: number;
+  explanation: string;
+  working?: string;
+}
+
+export interface MarkSchemePoint {
+  marks: number;
+  description: string;
+}
+
+export interface QuestionSolution {
+  finalAnswer: string;
+  steps: WorkedSolutionStep[];
+  markScheme: MarkSchemePoint[];
+  commonMistakes?: string[];
+}
+
 export interface DashboardSummary {
   user: AuthUser;
   subjects: Subject[];
