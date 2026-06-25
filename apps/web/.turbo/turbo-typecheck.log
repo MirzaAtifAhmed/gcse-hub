@@ -2,7 +2,7 @@
 [2K[1G[2m$ tsc --noEmit[22m
 [96msrc/lib/api.ts[0m:[93m4[0m:[93m24[0m - [91merror[0m[90m TS2339: [0mProperty 'env' does not exist on type 'ImportMeta'.
 
-[7m4[0m   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api',
+[7m4[0m   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:4404/api',
 [7m [0m [91m                       ~~~[0m
 
 
