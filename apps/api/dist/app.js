@@ -9,6 +9,7 @@ import { authRoutes } from './routes/authRoutes.js';
 import { childrenRoutes } from './routes/childrenRoutes.js';
 import { curriculumRoutes } from './routes/curriculumRoutes.js';
 import { dashboardRoutes } from './routes/dashboardRoutes.js';
+import { questionRoutes } from './routes/questionRoutes.js';
 export const app = express();
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/children', childrenRoutes);
 app.use('/api/curriculum', curriculumRoutes);
+app.use('/api/questions', questionRoutes);
 app.use((err, _req, res, _next) => {
     if (err instanceof ZodError) {
         return res

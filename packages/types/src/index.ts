@@ -1,6 +1,8 @@
 export type UserRole = 'student' | 'parent' | 'admin';
 export type KeyStage = 'KS3' | 'KS4';
 export type GcseTarget = 'foundation' | 'higher' | 'undecided';
+export type QuestionType = 'short-answer' | 'multiple-choice' | 'worked';
+export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
 export interface AuthUser {
   id: string;
@@ -23,6 +25,26 @@ export interface Subject {
   description: string;
   availableYears: number[];
   isActive?: boolean;
+}
+
+export interface CurriculumTopic {
+  id: string;
+  subjectId: string;
+  name: string;
+  slug: string;
+  description: string;
+  years: number[];
+  priority: number;
+}
+
+export interface CurriculumSkill {
+  id: string;
+  topicId: string;
+  name: string;
+  slug: string;
+  description: string;
+  years: number[];
+  difficulty: DifficultyLevel;
 }
 
 export interface ChildProfile {
@@ -50,6 +72,23 @@ export interface QuestionSolution {
   steps: WorkedSolutionStep[];
   markScheme: MarkSchemePoint[];
   commonMistakes?: string[];
+}
+
+export interface QuestionTemplate {
+  id: string;
+  subjectId: string;
+  topicId: string;
+  skillId: string;
+  title: string;
+  questionText: string;
+  type: QuestionType;
+  year: number;
+  difficulty: DifficultyLevel;
+  marks: number;
+  estimatedSeconds: number;
+  answer: string;
+  solution: QuestionSolution;
+  tags: string[];
 }
 
 export interface DashboardSummary {
