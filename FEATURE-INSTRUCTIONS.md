@@ -1,6 +1,6 @@
-# 002 - Reports API
+# 003 - Marking Improvements
 
-Apply after `001-exam-attempts-api`.
+Apply after `002-reports-api`.
 
 ## Run
 
@@ -11,13 +11,14 @@ yarn build
 
 ## Adds
 
-- Student report API
-- Parent child report API
-- Report based on submitted exam attempts
+- Better answer normalisation
+- Fraction equivalence for simple fractions
+- Decimal/currency tolerance
+- Algebra spacing/case cleanup
 
 ## Commit
 
 ```bash
 git add .
-git commit -m "feat: add reports api"
+git commit -m "feat: improve answer marking"
 ```
