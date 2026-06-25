@@ -1,6 +1,7 @@
 import type {
   ChildProfile,
   DashboardSummary,
+  GeneratedQuestion,
   PracticeAnswerResult,
   QuestionTemplate,
 } from '@gcse-hub/types';
@@ -8,10 +9,16 @@ import { type FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 import { api } from '../lib/api';
 
+type PracticeQuestion = QuestionTemplate | GeneratedQuestion;
+
+function isGeneratedQuestion(question: PracticeQuestion): question is GeneratedQuestion {
+  return !('subjectId' in question);
+}
+
 export function DashboardPage() {
   const { user, logout } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [questions, setQuestions] = useState<QuestionTemplate[]>([]);
+  const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
   const [results, setResults] = useState<Record<string, PracticeAnswerResult>>({});
   const [message, setMessage] = useState('');
 
@@ -22,7 +29,7 @@ export function DashboardPage() {
 
   async function loadPracticeQuestions() {
     const year = user?.currentYear ?? 8;
-    const res = await api.get(`/questions/practice?subjectSlug=mathematics&year=${year}&limit=5`);
+    const res = await api.get(`/questions/generated-practice?year=${year}&count=8`);
     setQuestions(res.data.data);
     setResults({});
   }
@@ -56,13 +63,34 @@ export function DashboardPage() {
     await loadDashboard();
   }
 
-  async function submitAnswer(event: FormEvent<HTMLFormElement>, questionId: string) {
+  async function submitAnswer(event: FormEvent<HTMLFormElement>, question: PracticeQuestion) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const answer = String(form.get('answer'));
+    const answer = String(form.get('answer')).trim();
 
-    const res = await api.post(`/questions/${questionId}/answer`, { answer });
-    setResults((current) => ({ ...current, [questionId]: res.data.data }));
+    if (isGeneratedQuestion(question)) {
+      const isCorrect =
+        answer.toLowerCase().replace(/\s+/g, '').replace(/£/g, '') ===
+        question.answer.toLowerCase().replace(/\s+/g, '').replace(/£/g, '');
+
+      setResults((current) => ({
+        ...current,
+        [question.id]: {
+          questionId: question.id,
+          submittedAnswer: answer,
+          correctAnswer: question.answer,
+          isCorrect,
+          awardedMarks: isCorrect ? question.marks : 0,
+          totalMarks: question.marks,
+          solution: question.solution,
+          checkedAt: new Date().toISOString(),
+        },
+      }));
+      return;
+    }
+
+    const res = await api.post(`/questions/${question.id}/answer`, { answer });
+    setResults((current) => ({ ...current, [question.id]: res.data.data }));
   }
 
   if (!user || !summary) {
@@ -186,11 +214,11 @@ export function DashboardPage() {
           <section className="card section">
             <div className="dashboard-header">
               <div>
-                <h2>Maths practice</h2>
-                <p>Answer questions and review full worked solutions.</p>
+                <h2>Generated maths practice</h2>
+                <p>Fresh algebra, ratio, probability and percentage questions with worked solutions.</p>
               </div>
               <button className="btn btn-primary" onClick={loadPracticeQuestions}>
-                Load practice questions
+                Generate questions
               </button>
             </div>
 
@@ -203,10 +231,11 @@ export function DashboardPage() {
                     <h3>{question.title}</h3>
                     <p>{question.questionText}</p>
                     <p>
-                      {question.marks} marks · Difficulty {question.difficulty}
+                      Topic: {isGeneratedQuestion(question) ? question.topic : 'Maths'} · {question.marks}{' '}
+                      marks · Difficulty {question.difficulty}
                     </p>
 
-                    <form className="answer-form" onSubmit={(event) => submitAnswer(event, question.id)}>
+                    <form className="answer-form" onSubmit={(event) => submitAnswer(event, question)}>
                       <input name="answer" placeholder="Type your answer" required />
                       <button className="btn btn-primary" type="submit">
                         Check answer

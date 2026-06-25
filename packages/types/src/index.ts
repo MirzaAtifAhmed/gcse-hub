@@ -91,6 +91,22 @@ export interface QuestionTemplate {
   tags: string[];
 }
 
+export interface GeneratedQuestion {
+  id: string;
+  title: string;
+  questionText: string;
+  topic: string;
+  skill: string;
+  type: QuestionType;
+  year: number;
+  difficulty: DifficultyLevel;
+  marks: number;
+  estimatedSeconds: number;
+  answer: string;
+  solution: QuestionSolution;
+  tags: string[];
+}
+
 export interface PracticeAnswerResult {
   questionId: string;
   submittedAnswer: string;
