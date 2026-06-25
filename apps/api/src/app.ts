@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { ZodError } from 'zod';
 import { env } from './config/env.js';
+import { adminRoutes } from './routes/adminRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { childrenRoutes } from './routes/childrenRoutes.js';
 import { curriculumRoutes } from './routes/curriculumRoutes.js';
@@ -28,6 +29,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/children', childrenRoutes);
 app.use('/api/curriculum', curriculumRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err instanceof ZodError) {

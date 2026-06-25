@@ -1,36 +1,32 @@
-# Feature Bundle: Parent & Student Management
+# Feature: Admin Account Overview + API Port 4004
 
-Apply this bundle on top of your clean `milestone/02-parent-student-curriculum-clean` branch after Step 1 and Step 2 are committed.
-
-## Apply
-
-Extract this ZIP over your current project.
+Apply with Merge/Replace.
 
 ## Run
 
 ```bash
 yarn typecheck
 yarn build
-```
-
-If you want the default subjects in MongoDB:
-
-```bash
 yarn workspace @gcse-hub/api seed
+yarn dev
 ```
 
-## Commit
+API is now:
+
+```text
+http://localhost:4004/api
+```
+
+Admin login after seed:
+
+```text
+admin@gcsehub.local
+Admin123!
+```
+
+Commit:
 
 ```bash
 git add .
-git commit -m "feat: add parent and student management"
+git commit -m "feat: add admin account overview and move api to port 4004"
 ```
-
-## Included
-
-- Parent can add a child/student profile
-- Parent can view children
-- Parent can promote a child from Year 7 to Year 11
-- Dashboard returns children and subject data
-- Subject collection and seed script
-- Solution-ready question types for the future question engine
