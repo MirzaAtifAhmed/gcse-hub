@@ -1,6 +1,6 @@
-# 003 - Marking Improvements
+# 004 - Stability Docs and Checklist
 
-Apply after `002-reports-api`.
+Apply after `003-marking-improvements`.
 
 ## Run
 
@@ -11,14 +11,13 @@ yarn build
 
 ## Adds
 
-- Better answer normalisation
-- Fraction equivalence for simple fractions
-- Decimal/currency tolerance
-- Algebra spacing/case cleanup
+- Manual testing checklist
+- Current expected behaviour
+- Next build roadmap
 
 ## Commit
 
 ```bash
 git add .
-git commit -m "feat: improve answer marking"
+git commit -m "docs: add stability checklist and roadmap"
 ```

@@ -1,13 +1,32 @@
 # Project Status
 
-## Version
-0.1.0
+## Current foundation
 
-## Current sprint
-Sprint 1 - Foundation
+- Authentication
+- Parent/student/admin roles
+- Admin overview
+- Child accounts
+- Curriculum foundation
+- Dynamic maths questions
+- Worked solutions
+- Practice marking
+- Generated exams
+- Exam attempts API
+- Reports API
+- Improved marking
 
-## Package manager
-Yarn Classic 1.22.22
+## Local ports
 
-## Fixed
-Removed `workspace:*` dependency protocol for Yarn 1 compatibility.
+- Web: `http://localhost:5173`
+- API: `http://localhost:4004`
+
+## Admin login
+
+```text
+admin@gcsehub.local
+Admin123!
+```
+
+## Next focus
+
+Stabilise end-to-end flows, then expand maths question bank.
