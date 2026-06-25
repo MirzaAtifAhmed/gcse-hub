@@ -1,4 +1,9 @@
-import type { ChildProfile, DashboardSummary } from '@gcse-hub/types';
+import type {
+  ChildProfile,
+  DashboardSummary,
+  PracticeAnswerResult,
+  QuestionTemplate,
+} from '@gcse-hub/types';
 import { type FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 import { api } from '../lib/api';
@@ -6,11 +11,20 @@ import { api } from '../lib/api';
 export function DashboardPage() {
   const { user, logout } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [questions, setQuestions] = useState<QuestionTemplate[]>([]);
+  const [results, setResults] = useState<Record<string, PracticeAnswerResult>>({});
   const [message, setMessage] = useState('');
 
   async function loadDashboard() {
     const res = await api.get('/dashboard');
     setSummary(res.data.data);
+  }
+
+  async function loadPracticeQuestions() {
+    const year = user?.currentYear ?? 8;
+    const res = await api.get(`/questions/practice?subjectSlug=mathematics&year=${year}&limit=5`);
+    setQuestions(res.data.data);
+    setResults({});
   }
 
   useEffect(() => {
@@ -40,6 +54,15 @@ export function DashboardPage() {
     const nextYear = Math.min(11, child.currentYear + 1);
     await api.patch(`/children/${child.id}/promote`, { currentYear: nextYear });
     await loadDashboard();
+  }
+
+  async function submitAnswer(event: FormEvent<HTMLFormElement>, questionId: string) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const answer = String(form.get('answer'));
+
+    const res = await api.post(`/questions/${questionId}/answer`, { answer });
+    setResults((current) => ({ ...current, [questionId]: res.data.data }));
   }
 
   if (!user || !summary) {
@@ -86,22 +109,18 @@ export function DashboardPage() {
             <form className="card" onSubmit={addChild}>
               <h2>Add child</h2>
               {message && <div className="success">{message}</div>}
-
               <div className="field">
                 <label>Name</label>
                 <input name="name" required />
               </div>
-
               <div className="field">
                 <label>Child login email</label>
                 <input name="email" type="email" required />
               </div>
-
               <div className="field">
                 <label>Temporary password</label>
                 <input name="password" type="password" minLength={8} required />
               </div>
-
               <div className="field">
                 <label>Current year</label>
                 <select name="currentYear" defaultValue="8">
@@ -112,7 +131,6 @@ export function DashboardPage() {
                   <option value="11">Year 11</option>
                 </select>
               </div>
-
               <div className="field">
                 <label>Target</label>
                 <select name="target" defaultValue="undecided">
@@ -121,7 +139,6 @@ export function DashboardPage() {
                   <option value="higher">Higher</option>
                 </select>
               </div>
-
               <button className="btn btn-primary" type="submit">
                 Create child profile
               </button>
@@ -131,7 +148,6 @@ export function DashboardPage() {
               <h2>Children</h2>
               <div className="grid">
                 {summary.children.length === 0 && <p>No children added yet.</p>}
-
                 {summary.children.map((child) => (
                   <article className="child-card" key={child.id}>
                     <h3>{child.name}</h3>
@@ -165,6 +181,73 @@ export function DashboardPage() {
             ))}
           </div>
         </section>
+
+        {!isParent && (
+          <section className="card section">
+            <div className="dashboard-header">
+              <div>
+                <h2>Maths practice</h2>
+                <p>Answer questions and review full worked solutions.</p>
+              </div>
+              <button className="btn btn-primary" onClick={loadPracticeQuestions}>
+                Load practice questions
+              </button>
+            </div>
+
+            <div className="grid">
+              {questions.map((question) => {
+                const result = results[question.id];
+
+                return (
+                  <article className="child-card" key={question.id}>
+                    <h3>{question.title}</h3>
+                    <p>{question.questionText}</p>
+                    <p>
+                      {question.marks} marks · Difficulty {question.difficulty}
+                    </p>
+
+                    <form className="answer-form" onSubmit={(event) => submitAnswer(event, question.id)}>
+                      <input name="answer" placeholder="Type your answer" required />
+                      <button className="btn btn-primary" type="submit">
+                        Check answer
+                      </button>
+                    </form>
+
+                    {result && (
+                      <div className={result.isCorrect ? 'success-box' : 'error-box'}>
+                        <h4>{result.isCorrect ? 'Correct' : 'Not quite'}</h4>
+                        <p>
+                          Mark: {result.awardedMarks}/{result.totalMarks}
+                        </p>
+                        <p>
+                          Correct answer: <strong>{result.correctAnswer}</strong>
+                        </p>
+
+                        <h4>Worked solution</h4>
+                        <ol>
+                          {result.solution.steps.map((step) => (
+                            <li key={step.order}>
+                              {step.explanation} {step.working && <code>{step.working}</code>}
+                            </li>
+                          ))}
+                        </ol>
+
+                        <h4>Mark scheme</h4>
+                        <ul>
+                          {result.solution.markScheme.map((point) => (
+                            <li key={point.description}>
+                              {point.marks} mark(s): {point.description}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );

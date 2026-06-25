@@ -162,7 +162,8 @@ select {
 }
 
 .field input,
-.field select {
+.field select,
+.answer-form input {
   border: 1px solid #cbd5e1;
   border-radius: 14px;
   padding: 13px 14px;
@@ -213,6 +214,59 @@ select {
 
 .section {
   margin-top: 24px;
+}
+
+.answer-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.success-box,
+.error-box {
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.success-box {
+  background: #ecfdf5;
+  border: 1px solid #86efac;
+}
+
+.error-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+code {
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px;
+  white-space: nowrap;
+}
+
+.table th {
+  color: #475569;
+  font-size: 14px;
 }
 
 @media (max-width: 820px) {

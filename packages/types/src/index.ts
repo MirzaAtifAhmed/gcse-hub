@@ -91,6 +91,17 @@ export interface QuestionTemplate {
   tags: string[];
 }
 
+export interface PracticeAnswerResult {
+  questionId: string;
+  submittedAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+  awardedMarks: number;
+  totalMarks: number;
+  solution: QuestionSolution;
+  checkedAt: string;
+}
+
 export interface AdminUserSummary {
   id: string;
   name: string;

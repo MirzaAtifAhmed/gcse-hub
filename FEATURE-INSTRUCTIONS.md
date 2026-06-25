@@ -1,6 +1,6 @@
-# Feature: Admin Account Overview + API Port 4004
+# Feature: Maths Practice + Auto Marking Foundation
 
-Apply with Merge/Replace.
+Apply with Merge/Replace after the admin/port 4004 feature.
 
 ## Run
 
@@ -11,22 +11,25 @@ yarn workspace @gcse-hub/api seed
 yarn dev
 ```
 
-API is now:
+## Included
+
+- Practice attempt model
+- Submit answer endpoint
+- Simple automatic marking
+- Worked solution returned after marking
+- Student practice page section
+- Answer input and instant feedback
+
+## API
 
 ```text
-http://localhost:4004/api
+GET  /api/questions/practice?subjectSlug=mathematics&year=8&limit=5
+POST /api/questions/:questionId/answer
 ```
 
-Admin login after seed:
-
-```text
-admin@gcsehub.local
-Admin123!
-```
-
-Commit:
+## Commit
 
 ```bash
 git add .
-git commit -m "feat: add admin account overview and move api to port 4004"
+git commit -m "feat: add maths practice marking foundation"
 ```
