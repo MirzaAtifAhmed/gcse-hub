@@ -13,12 +13,21 @@ export function RegisterPage() {
     setError('');
 
     const form = new FormData(event.currentTarget);
+    const password = String(form.get('password'));
+    const confirmPassword = String(form.get('confirmPassword'));
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
 
     try {
       await register({
-        name: String(form.get('name')),
+        firstName: String(form.get('firstName')),
+        surname: String(form.get('surname')),
         email: String(form.get('email')),
-        password: String(form.get('password')),
+        password,
+        confirmPassword,
         role,
         currentYear: role === 'student' ? Number(form.get('currentYear')) : undefined,
       });
@@ -35,9 +44,30 @@ export function RegisterPage() {
         <p>Start building GCSE confidence today.</p>
         {error && <div className="error">{error}</div>}
 
-        <div className="field"><label>Name</label><input name="name" required /></div>
-        <div className="field"><label>Email</label><input name="email" type="email" required /></div>
-        <div className="field"><label>Password</label><input name="password" type="password" minLength={8} required /></div>
+        <div className="field">
+          <label>First name</label>
+          <input name="firstName" required />
+        </div>
+
+        <div className="field">
+          <label>Surname</label>
+          <input name="surname" required />
+        </div>
+
+        <div className="field">
+          <label>Email</label>
+          <input name="email" type="email" required />
+        </div>
+
+        <div className="field">
+          <label>Password</label>
+          <input name="password" type="password" minLength={8} required />
+        </div>
+
+        <div className="field">
+          <label>Confirm password</label>
+          <input name="confirmPassword" type="password" minLength={8} required />
+        </div>
 
         <div className="field">
           <label>Account type</label>
@@ -60,8 +90,13 @@ export function RegisterPage() {
           </div>
         )}
 
-        <button className="btn btn-primary" type="submit">Create account</button>
-        <p>Already registered? <Link to="/login">Login</Link></p>
+        <button className="btn btn-primary" type="submit">
+          Create account
+        </button>
+
+        <p>
+          Already registered? <Link to="/login">Login</Link>
+        </p>
       </form>
     </main>
   );

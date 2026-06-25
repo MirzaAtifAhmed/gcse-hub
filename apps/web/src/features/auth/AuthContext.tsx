@@ -2,17 +2,21 @@ import type { AuthUser } from '@gcse-hub/types';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../../lib/api';
 
+interface RegisterInput {
+  firstName: string;
+  surname: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: 'student' | 'parent';
+  currentYear?: number;
+}
+
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   login(email: string, password: string): Promise<AuthUser>;
-  register(input: {
-    name: string;
-    email: string;
-    password: string;
-    role: 'student' | 'parent';
-    currentYear?: number;
-  }): Promise<AuthUser>;
+  register(input: RegisterInput): Promise<AuthUser>;
   logout(): Promise<void>;
 }
 
