@@ -240,6 +240,14 @@ select {
   border: 1px solid #fecaca;
 }
 
+.exam-summary {
+  border-radius: 18px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
 code {
   background: #e2e8f0;
   border-radius: 8px;

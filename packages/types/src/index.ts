@@ -107,6 +107,19 @@ export interface GeneratedQuestion {
   tags: string[];
 }
 
+export interface GeneratedExamPaper {
+  id: string;
+  title: string;
+  subject: string;
+  year: number;
+  durationMinutes: number;
+  totalMarks: number;
+  estimatedSeconds: number;
+  questions: GeneratedQuestion[];
+  topicBreakdown: Record<string, number>;
+  createdAt: string;
+}
+
 export interface PracticeAnswerResult {
   questionId: string;
   submittedAnswer: string;

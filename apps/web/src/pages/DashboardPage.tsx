@@ -1,6 +1,7 @@
 import type {
   ChildProfile,
   DashboardSummary,
+  GeneratedExamPaper,
   GeneratedQuestion,
   PracticeAnswerResult,
   QuestionTemplate,
@@ -19,6 +20,7 @@ export function DashboardPage() {
   const { user, logout } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
+  const [exam, setExam] = useState<GeneratedExamPaper | null>(null);
   const [results, setResults] = useState<Record<string, PracticeAnswerResult>>({});
   const [message, setMessage] = useState('');
 
@@ -31,6 +33,15 @@ export function DashboardPage() {
     const year = user?.currentYear ?? 8;
     const res = await api.get(`/questions/generated-practice?year=${year}&count=8`);
     setQuestions(res.data.data);
+    setExam(null);
+    setResults({});
+  }
+
+  async function generateExam(durationMinutes: number) {
+    const year = user?.currentYear ?? 8;
+    const res = await api.get(`/exams/generate?year=${year}&durationMinutes=${durationMinutes}`);
+    setExam(res.data.data);
+    setQuestions([]);
     setResults({});
   }
 
@@ -91,6 +102,61 @@ export function DashboardPage() {
 
     const res = await api.post(`/questions/${question.id}/answer`, { answer });
     setResults((current) => ({ ...current, [question.id]: res.data.data }));
+  }
+
+  function renderQuestion(question: PracticeQuestion, index?: number) {
+    const result = results[question.id];
+
+    return (
+      <article className="child-card" key={question.id}>
+        <h3>
+          {index ? `Question ${index}: ` : ''}
+          {question.title}
+        </h3>
+        <p>{question.questionText}</p>
+        <p>
+          Topic: {isGeneratedQuestion(question) ? question.topic : 'Maths'} · {question.marks} marks ·
+          Difficulty {question.difficulty}
+        </p>
+
+        <form className="answer-form" onSubmit={(event) => submitAnswer(event, question)}>
+          <input name="answer" placeholder="Type your answer" required />
+          <button className="btn btn-primary" type="submit">
+            Check answer
+          </button>
+        </form>
+
+        {result && (
+          <div className={result.isCorrect ? 'success-box' : 'error-box'}>
+            <h4>{result.isCorrect ? 'Correct' : 'Not quite'}</h4>
+            <p>
+              Mark: {result.awardedMarks}/{result.totalMarks}
+            </p>
+            <p>
+              Correct answer: <strong>{result.correctAnswer}</strong>
+            </p>
+
+            <h4>Worked solution</h4>
+            <ol>
+              {result.solution.steps.map((step) => (
+                <li key={step.order}>
+                  {step.explanation} {step.working && <code>{step.working}</code>}
+                </li>
+              ))}
+            </ol>
+
+            <h4>Mark scheme</h4>
+            <ul>
+              {result.solution.markScheme.map((point) => (
+                <li key={point.description}>
+                  {point.marks} mark(s): {point.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </article>
+    );
   }
 
   if (!user || !summary) {
@@ -214,66 +280,44 @@ export function DashboardPage() {
           <section className="card section">
             <div className="dashboard-header">
               <div>
-                <h2>Generated maths practice</h2>
-                <p>Fresh algebra, ratio, probability and percentage questions with worked solutions.</p>
+                <h2>Maths practice and exams</h2>
+                <p>Generate short practice sets or full timed papers with worked solutions.</p>
               </div>
-              <button className="btn btn-primary" onClick={loadPracticeQuestions}>
-                Generate questions
-              </button>
+              <div className="nav-links">
+                <button className="btn btn-secondary" onClick={loadPracticeQuestions}>
+                  Quick practice
+                </button>
+                <button className="btn btn-primary" onClick={() => generateExam(30)}>
+                  30 min paper
+                </button>
+                <button className="btn btn-primary" onClick={() => generateExam(45)}>
+                  45 min paper
+                </button>
+                <button className="btn btn-primary" onClick={() => generateExam(60)}>
+                  60 min paper
+                </button>
+              </div>
             </div>
 
+            {exam && (
+              <section className="exam-summary">
+                <h3>{exam.title}</h3>
+                <p>
+                  {exam.questions.length} questions · {exam.totalMarks} marks · {exam.durationMinutes}{' '}
+                  minutes
+                </p>
+                <p>
+                  Topics:{' '}
+                  {Object.entries(exam.topicBreakdown)
+                    .map(([topic, count]) => `${topic} (${count})`)
+                    .join(', ')}
+                </p>
+              </section>
+            )}
+
             <div className="grid">
-              {questions.map((question) => {
-                const result = results[question.id];
-
-                return (
-                  <article className="child-card" key={question.id}>
-                    <h3>{question.title}</h3>
-                    <p>{question.questionText}</p>
-                    <p>
-                      Topic: {isGeneratedQuestion(question) ? question.topic : 'Maths'} · {question.marks}{' '}
-                      marks · Difficulty {question.difficulty}
-                    </p>
-
-                    <form className="answer-form" onSubmit={(event) => submitAnswer(event, question)}>
-                      <input name="answer" placeholder="Type your answer" required />
-                      <button className="btn btn-primary" type="submit">
-                        Check answer
-                      </button>
-                    </form>
-
-                    {result && (
-                      <div className={result.isCorrect ? 'success-box' : 'error-box'}>
-                        <h4>{result.isCorrect ? 'Correct' : 'Not quite'}</h4>
-                        <p>
-                          Mark: {result.awardedMarks}/{result.totalMarks}
-                        </p>
-                        <p>
-                          Correct answer: <strong>{result.correctAnswer}</strong>
-                        </p>
-
-                        <h4>Worked solution</h4>
-                        <ol>
-                          {result.solution.steps.map((step) => (
-                            <li key={step.order}>
-                              {step.explanation} {step.working && <code>{step.working}</code>}
-                            </li>
-                          ))}
-                        </ol>
-
-                        <h4>Mark scheme</h4>
-                        <ul>
-                          {result.solution.markScheme.map((point) => (
-                            <li key={point.description}>
-                              {point.marks} mark(s): {point.description}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </article>
-                );
-              })}
+              {questions.map((question) => renderQuestion(question))}
+              {exam?.questions.map((question, index) => renderQuestion(question, index + 1))}
             </div>
           </section>
         )}
