@@ -21,3 +21,7 @@ export const DEFAULT_SUBJECTS = [
     availableYears: [7, 8, 9, 10, 11],
   },
 ] as const;
+
+export function clampYear(year: number) {
+  return Math.max(7, Math.min(11, year));
+}
