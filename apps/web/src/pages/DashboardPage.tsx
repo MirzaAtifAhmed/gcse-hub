@@ -1,10 +1,13 @@
 import type {
   ChildProfile,
   DashboardSummary,
+  ExamAttempt,
+  ExamSubmissionResult,
   GeneratedExamPaper,
   GeneratedQuestion,
   PracticeAnswerResult,
   QuestionTemplate,
+  StudentReportSummary,
 } from '@gcse-hub/types';
 import { type FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
@@ -21,12 +24,26 @@ export function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
   const [exam, setExam] = useState<GeneratedExamPaper | null>(null);
+  const [attempt, setAttempt] = useState<ExamAttempt | null>(null);
+  const [submission, setSubmission] = useState<ExamSubmissionResult | null>(null);
+  const [report, setReport] = useState<StudentReportSummary | null>(null);
   const [results, setResults] = useState<Record<string, PracticeAnswerResult>>({});
   const [message, setMessage] = useState('');
+  const [childError, setChildError] = useState('');
 
   async function loadDashboard() {
     const res = await api.get('/dashboard');
     setSummary(res.data.data);
+  }
+
+  async function loadMyReport() {
+    const res = await api.get('/reports/me');
+    setReport(res.data.data);
+  }
+
+  async function loadChildReport(childId: string) {
+    const res = await api.get(`/reports/student/${childId}`);
+    setReport(res.data.data);
   }
 
   async function loadPracticeQuestions() {
@@ -34,13 +51,20 @@ export function DashboardPage() {
     const res = await api.get(`/questions/generated-practice?year=${year}&count=8`);
     setQuestions(res.data.data);
     setExam(null);
+    setAttempt(null);
+    setSubmission(null);
     setResults({});
   }
 
   async function generateExam(durationMinutes: number) {
     const year = user?.currentYear ?? 8;
-    const res = await api.get(`/exams/generate?year=${year}&durationMinutes=${durationMinutes}`);
-    setExam(res.data.data);
+    const examRes = await api.get(`/exams/generate?year=${year}&durationMinutes=${durationMinutes}`);
+    const generatedExam = examRes.data.data as GeneratedExamPaper;
+    const attemptRes = await api.post('/exams/attempts', { paper: generatedExam });
+
+    setExam(generatedExam);
+    setAttempt(attemptRes.data.data);
+    setSubmission(null);
     setQuestions([]);
     setResults({});
   }
@@ -52,20 +76,34 @@ export function DashboardPage() {
   async function addChild(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage('');
+    setChildError('');
 
     const form = new FormData(event.currentTarget);
+    const password = String(form.get('password'));
+    const confirmPassword = String(form.get('confirmPassword'));
 
-    await api.post('/children', {
-      name: String(form.get('name')),
-      email: String(form.get('email')),
-      password: String(form.get('password')),
-      currentYear: Number(form.get('currentYear')),
-      target: String(form.get('target')),
-    });
+    if (password !== confirmPassword) {
+      setChildError('Passwords do not match.');
+      return;
+    }
 
-    event.currentTarget.reset();
-    setMessage('Child profile created.');
-    await loadDashboard();
+    try {
+      await api.post('/children', {
+        firstName: String(form.get('firstName')),
+        surname: String(form.get('surname')),
+        email: String(form.get('email')),
+        password,
+        confirmPassword,
+        currentYear: Number(form.get('currentYear')),
+        target: String(form.get('target')),
+      });
+
+      event.currentTarget.reset();
+      setMessage('Child profile created.');
+      await loadDashboard();
+    } catch {
+      setChildError('Could not create child profile. The email may already be registered.');
+    }
   }
 
   async function promoteChild(child: ChildProfile) {
@@ -74,7 +112,7 @@ export function DashboardPage() {
     await loadDashboard();
   }
 
-  async function submitAnswer(event: FormEvent<HTMLFormElement>, question: PracticeQuestion) {
+  async function submitPracticeAnswer(event: FormEvent<HTMLFormElement>, question: PracticeQuestion) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const answer = String(form.get('answer')).trim();
@@ -104,7 +142,69 @@ export function DashboardPage() {
     setResults((current) => ({ ...current, [question.id]: res.data.data }));
   }
 
-  function renderQuestion(question: PracticeQuestion, index?: number) {
+  async function saveExamAnswer(event: FormEvent<HTMLFormElement>, questionId: string) {
+    event.preventDefault();
+    if (!attempt) {
+      return;
+    }
+
+    const form = new FormData(event.currentTarget);
+    const answer = String(form.get('answer')).trim();
+
+    const res = await api.patch(`/exams/attempts/${attempt.id}/answers/${questionId}`, { answer });
+    setAttempt(res.data.data);
+  }
+
+  async function submitExam() {
+    if (!attempt) {
+      return;
+    }
+
+    const res = await api.post(`/exams/attempts/${attempt.id}/submit`);
+    setSubmission(res.data.data);
+    setAttempt(res.data.data.attempt);
+  }
+
+  function renderReport() {
+    if (!report) {
+      return null;
+    }
+
+    return (
+      <section className="card section">
+        <h2>Progress report</h2>
+        <div className="grid grid-3">
+          <div className="stat">
+            <span>Completed exams</span>
+            <strong>{report.completedExams}</strong>
+          </div>
+          <div className="stat">
+            <span>Questions answered</span>
+            <strong>{report.questionsAnswered}</strong>
+          </div>
+          <div className="stat">
+            <span>Average score</span>
+            <strong>{report.averagePercentage}%</strong>
+          </div>
+        </div>
+
+        <h3>Recent exams</h3>
+        <div className="grid">
+          {report.recentExams.length === 0 && <p>No submitted exams yet.</p>}
+          {report.recentExams.map((examResult) => (
+            <article className="child-card" key={examResult.id}>
+              <strong>{examResult.title}</strong>
+              <p>
+                {examResult.awardedMarks}/{examResult.totalMarks} marks · {examResult.percentage}%
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  function renderPracticeQuestion(question: PracticeQuestion, index?: number) {
     const result = results[question.id];
 
     return (
@@ -114,29 +214,18 @@ export function DashboardPage() {
           {question.title}
         </h3>
         <p>{question.questionText}</p>
-        <p>
-          Topic: {isGeneratedQuestion(question) ? question.topic : 'Maths'} · {question.marks} marks ·
-          Difficulty {question.difficulty}
-        </p>
-
-        <form className="answer-form" onSubmit={(event) => submitAnswer(event, question)}>
+        <form className="answer-form" onSubmit={(event) => submitPracticeAnswer(event, question)}>
           <input name="answer" placeholder="Type your answer" required />
           <button className="btn btn-primary" type="submit">
             Check answer
           </button>
         </form>
-
         {result && (
           <div className={result.isCorrect ? 'success-box' : 'error-box'}>
             <h4>{result.isCorrect ? 'Correct' : 'Not quite'}</h4>
             <p>
-              Mark: {result.awardedMarks}/{result.totalMarks}
-            </p>
-            <p>
               Correct answer: <strong>{result.correctAnswer}</strong>
             </p>
-
-            <h4>Worked solution</h4>
             <ol>
               {result.solution.steps.map((step) => (
                 <li key={step.order}>
@@ -144,15 +233,45 @@ export function DashboardPage() {
                 </li>
               ))}
             </ol>
+          </div>
+        )}
+      </article>
+    );
+  }
 
-            <h4>Mark scheme</h4>
-            <ul>
-              {result.solution.markScheme.map((point) => (
-                <li key={point.description}>
-                  {point.marks} mark(s): {point.description}
+  function renderExamQuestion(question: GeneratedQuestion, index: number) {
+    const submitted = submission?.questions.find((item) => item.question.id === question.id);
+
+    return (
+      <article className="child-card" key={question.id}>
+        <h3>
+          Question {index}: {question.title}
+        </h3>
+        <p>{question.questionText}</p>
+        {!submission && (
+          <form className="answer-form" onSubmit={(event) => saveExamAnswer(event, question.id)}>
+            <input name="answer" placeholder="Type your answer" />
+            <button className="btn btn-secondary" type="submit">
+              Save answer
+            </button>
+          </form>
+        )}
+        {submitted && (
+          <div className={submitted.isCorrect ? 'success-box' : 'error-box'}>
+            <p>Your answer: {submitted.submittedAnswer || '-'}</p>
+            <p>
+              Correct answer: <strong>{question.answer}</strong>
+            </p>
+            <p>
+              Mark: {submitted.awardedMarks}/{submitted.totalMarks}
+            </p>
+            <ol>
+              {question.solution.steps.map((step) => (
+                <li key={step.order}>
+                  {step.explanation} {step.working && <code>{step.working}</code>}
                 </li>
               ))}
-            </ul>
+            </ol>
           </div>
         )}
       </article>
@@ -203,18 +322,33 @@ export function DashboardPage() {
             <form className="card" onSubmit={addChild}>
               <h2>Add child</h2>
               {message && <div className="success">{message}</div>}
+              {childError && <div className="error">{childError}</div>}
+
               <div className="field">
-                <label>Name</label>
-                <input name="name" required />
+                <label>First name</label>
+                <input name="firstName" required />
               </div>
+
+              <div className="field">
+                <label>Surname</label>
+                <input name="surname" required />
+              </div>
+
               <div className="field">
                 <label>Child login email</label>
                 <input name="email" type="email" required />
               </div>
+
               <div className="field">
                 <label>Temporary password</label>
                 <input name="password" type="password" minLength={8} required />
               </div>
+
+              <div className="field">
+                <label>Confirm password</label>
+                <input name="confirmPassword" type="password" minLength={8} required />
+              </div>
+
               <div className="field">
                 <label>Current year</label>
                 <select name="currentYear" defaultValue="8">
@@ -225,6 +359,7 @@ export function DashboardPage() {
                   <option value="11">Year 11</option>
                 </select>
               </div>
+
               <div className="field">
                 <label>Target</label>
                 <select name="target" defaultValue="undecided">
@@ -233,6 +368,7 @@ export function DashboardPage() {
                   <option value="higher">Higher</option>
                 </select>
               </div>
+
               <button className="btn btn-primary" type="submit">
                 Create child profile
               </button>
@@ -249,13 +385,18 @@ export function DashboardPage() {
                     <p>
                       Year {child.currentYear} · Target: {child.target}
                     </p>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => promoteChild(child)}
-                      disabled={child.currentYear >= 11}
-                    >
-                      Promote year
-                    </button>
+                    <div className="nav-links">
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => promoteChild(child)}
+                        disabled={child.currentYear >= 11}
+                      >
+                        Promote year
+                      </button>
+                      <button className="btn btn-primary" onClick={() => loadChildReport(child.id)}>
+                        View report
+                      </button>
+                    </div>
                   </article>
                 ))}
               </div>
@@ -263,18 +404,7 @@ export function DashboardPage() {
           </section>
         )}
 
-        <section className="card section">
-          <h2>{isParent ? 'Available subjects' : 'Your subjects'}</h2>
-          <div className="grid grid-3">
-            {summary.subjects.map((subject) => (
-              <article className="subject-card" key={subject.id}>
-                <h3>{subject.name}</h3>
-                <p>{subject.description}</p>
-                <small>Years {subject.availableYears.join(', ')}</small>
-              </article>
-            ))}
-          </div>
-        </section>
+        {renderReport()}
 
         {!isParent && (
           <section className="card section">
@@ -284,6 +414,9 @@ export function DashboardPage() {
                 <p>Generate short practice sets or full timed papers with worked solutions.</p>
               </div>
               <div className="nav-links">
+                <button className="btn btn-secondary" onClick={loadMyReport}>
+                  My report
+                </button>
                 <button className="btn btn-secondary" onClick={loadPracticeQuestions}>
                   Quick practice
                 </button>
@@ -306,18 +439,25 @@ export function DashboardPage() {
                   {exam.questions.length} questions · {exam.totalMarks} marks · {exam.durationMinutes}{' '}
                   minutes
                 </p>
-                <p>
-                  Topics:{' '}
-                  {Object.entries(exam.topicBreakdown)
-                    .map(([topic, count]) => `${topic} (${count})`)
-                    .join(', ')}
-                </p>
+                {attempt && !submission && (
+                  <button className="btn btn-primary" onClick={submitExam}>
+                    Submit exam
+                  </button>
+                )}
+                {submission && (
+                  <p>
+                    <strong>
+                      Score: {submission.attempt.awardedMarks}/{submission.attempt.totalMarks} (
+                      {submission.attempt.percentage}%)
+                    </strong>
+                  </p>
+                )}
               </section>
             )}
 
             <div className="grid">
-              {questions.map((question) => renderQuestion(question))}
-              {exam?.questions.map((question, index) => renderQuestion(question, index + 1))}
+              {questions.map((question) => renderPracticeQuestion(question))}
+              {exam?.questions.map((question, index) => renderExamQuestion(question, index + 1))}
             </div>
           </section>
         )}
