@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# pnpm
+.pnpm-store/
+
+# yarn
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# vite
+.vite/
+
+# build
+dist/
+build/
+coverage/
+
+# env
+.env
+.env.local
+
+# logs
+*.log
+
+# macOS
+.DS_Store

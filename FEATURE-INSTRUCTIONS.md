@@ -1,6 +1,6 @@
-# 001 - Exam Attempts API
+# 002 - Reports API
 
-Apply after `feat: add exam generator foundation`.
+Apply after `001-exam-attempts-api`.
 
 ## Run
 
@@ -11,16 +11,13 @@ yarn build
 
 ## Adds
 
-- MongoDB model for exam attempts
-- Start exam attempt
-- Save answer
-- Submit exam
-- Mark answers
-- Return score
+- Student report API
+- Parent child report API
+- Report based on submitted exam attempts
 
 ## Commit
 
 ```bash
 git add .
-git commit -m "feat: add exam attempts api"
+git commit -m "feat: add reports api"
 ```
