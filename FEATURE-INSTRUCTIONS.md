@@ -1,6 +1,6 @@
-# Feature 003 - More Maths Generators
+# Feature 004 - Wire Extra Generators
 
-Apply after Feature 002.
+Apply after Feature 003.
 
 ## Run
 
@@ -13,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(maths): add number fractions angles and area generators"
+git commit -m "feat(maths): include extra generators in mixed practice"
 ```

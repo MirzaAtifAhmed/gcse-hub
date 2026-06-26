@@ -1,4 +1,9 @@
 import type { GeneratedQuestion } from '@gcse-hub/types';
+import {
+  generateAnglesOnLineQuestion,
+  generateAreaRectangleQuestion,
+  generateFractionOfAmountQuestion,
+} from './mathsExtraGenerators.js';
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -40,26 +45,15 @@ export function generateExpandingBracketQuestion(year = 8): GeneratedQuestion {
         {
           order: 1,
           explanation: `Multiply ${coefficient} by each term inside the bracket.`,
-          working: `${coefficient} × x = ${coefficient}x and ${coefficient} × ${constant} = ${
-            coefficient * constant
-          }`,
+          working: `${coefficient} × x = ${coefficient}x and ${coefficient} × ${constant} = ${coefficient * constant}`,
         },
-        {
-          order: 2,
-          explanation: 'Write the expanded expression.',
-          working: `${coefficient}(x + ${constant}) = ${answer}`,
-        },
+        { order: 2, explanation: 'Write the expanded expression.', working: `${coefficient}(x + ${constant}) = ${answer}` },
       ],
       markScheme: [
         { marks: 1, description: `Correctly multiplies ${coefficient} by x.` },
-        {
-          marks: 1,
-          description: `Correctly multiplies ${coefficient} by ${constant} and gives ${answer}.`,
-        },
+        { marks: 1, description: `Correctly multiplies ${coefficient} by ${constant} and gives ${answer}.` },
       ],
-      commonMistakes: [
-        `Writing ${coefficient}x + ${constant} instead of multiplying both terms by ${coefficient}.`,
-      ],
+      commonMistakes: [`Writing ${coefficient}x + ${constant} instead of multiplying both terms.`],
     },
     tags: ['algebra', 'expanding-brackets', `year-${year}`],
   };
@@ -88,32 +82,17 @@ export function generateRatioSharingQuestion(year = 8): GeneratedQuestion {
     solution: {
       finalAnswer: `£${shareA} and £${shareB}`,
       steps: [
-        {
-          order: 1,
-          explanation: 'Add the parts of the ratio.',
-          working: `${partA} + ${partB} = ${partA + partB} parts`,
-        },
-        {
-          order: 2,
-          explanation: 'Find the value of one part.',
-          working: `£${total} ÷ ${partA + partB} = £${onePart}`,
-        },
-        {
-          order: 3,
-          explanation: 'Multiply each ratio part by the value of one part.',
-          working: `${partA} parts = £${shareA} and ${partB} parts = £${shareB}`,
-        },
+        { order: 1, explanation: 'Add the parts of the ratio.', working: `${partA} + ${partB} = ${partA + partB} parts` },
+        { order: 2, explanation: 'Find the value of one part.', working: `£${total} ÷ ${partA + partB} = £${onePart}` },
+        { order: 3, explanation: 'Multiply each ratio part.', working: `${partA} parts = £${shareA} and ${partB} parts = £${shareB}` },
       ],
       markScheme: [
         { marks: 1, description: 'Adds ratio parts correctly.' },
-        { marks: 1, description: 'Finds the value of one part.' },
-        { marks: 1, description: 'Finds both final shares correctly.' },
-      ],
-      commonMistakes: [
-        'Dividing by 2 because there are two people instead of using total ratio parts.',
+        { marks: 1, description: 'Finds one part.' },
+        { marks: 1, description: 'Finds both shares.' },
       ],
     },
-    tags: ['ratio', 'sharing-ratio', `year-${year}`],
+    tags: ['ratio', `year-${year}`],
   };
 }
 
@@ -142,24 +121,15 @@ export function generateProbabilityQuestion(year = 7): GeneratedQuestion {
     solution: {
       finalAnswer: simplified,
       steps: [
-        {
-          order: 1,
-          explanation: 'List the favourable outcomes.',
-          working: selected.examples,
-        },
-        {
-          order: 2,
-          explanation: 'Write favourable outcomes over total possible outcomes and simplify.',
-          working: `${selected.favourable}/${selected.total} = ${simplified}`,
-        },
+        { order: 1, explanation: 'List the favourable outcomes.', working: selected.examples },
+        { order: 2, explanation: 'Write favourable outcomes over total outcomes.', working: `${selected.favourable}/${selected.total} = ${simplified}` },
       ],
       markScheme: [
-        { marks: 1, description: 'Identifies the favourable outcomes correctly.' },
-        { marks: 1, description: 'Writes the probability correctly as a fraction.' },
+        { marks: 1, description: 'Identifies favourable outcomes.' },
+        { marks: 1, description: 'Writes probability correctly.' },
       ],
-      commonMistakes: ['Giving the number of favourable outcomes instead of a probability.'],
     },
-    tags: ['probability', 'dice', `year-${year}`],
+    tags: ['probability', `year-${year}`],
   };
 }
 
@@ -184,24 +154,15 @@ export function generatePercentageQuestion(year = 8): GeneratedQuestion {
     solution: {
       finalAnswer: `${answerValue}`,
       steps: [
-        {
-          order: 1,
-          explanation: 'Convert the percentage to a decimal.',
-          working: `${percentage}% = ${percentage / 100}`,
-        },
-        {
-          order: 2,
-          explanation: 'Multiply the amount by the decimal.',
-          working: `${amount} × ${percentage / 100} = ${answerValue}`,
-        },
+        { order: 1, explanation: 'Convert percentage to decimal.', working: `${percentage}% = ${percentage / 100}` },
+        { order: 2, explanation: 'Multiply the amount.', working: `${amount} × ${percentage / 100} = ${answerValue}` },
       ],
       markScheme: [
-        { marks: 1, description: 'Correct method to convert or calculate the percentage.' },
-        { marks: 1, description: 'Correct final answer.' },
+        { marks: 1, description: 'Correct method.' },
+        { marks: 1, description: 'Correct answer.' },
       ],
-      commonMistakes: ['Dividing by the percentage instead of finding that percentage of the amount.'],
     },
-    tags: ['percentages', 'fdp', `year-${year}`],
+    tags: ['percentages', `year-${year}`],
   };
 }
 
@@ -211,6 +172,9 @@ export function generateMixedMathsQuestions(year = 8, count = 10): GeneratedQues
     () => generateRatioSharingQuestion(year),
     () => generateProbabilityQuestion(year),
     () => generatePercentageQuestion(year),
+    () => generateFractionOfAmountQuestion(year),
+    () => generateAreaRectangleQuestion(year),
+    () => generateAnglesOnLineQuestion(year),
   ];
 
   return Array.from({ length: count }, (_, index) => generators[index % generators.length]());
