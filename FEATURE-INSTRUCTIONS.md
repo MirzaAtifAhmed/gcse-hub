@@ -1,6 +1,6 @@
-# Feature 004 - Wire Extra Generators
+# Feature 005 - Topic Filter Generated Practice
 
-Apply after Feature 003.
+Apply after Feature 004.
 
 ## Run
 
@@ -13,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(maths): include extra generators in mixed practice"
+git commit -m "feat(practice): add topic filter to generated questions"
 ```
