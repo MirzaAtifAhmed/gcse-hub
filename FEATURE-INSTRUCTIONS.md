@@ -1,14 +1,6 @@
-# Features 011-012 - UI Components + Practice Layout
+# Features 015-016 - Topic Mastery API
 
-Apply after features 001-010.
-
-## Branch
-
-```bash
-git checkout main
-git pull
-git checkout -b feature/011-012-ui-practice-layout
-```
+Apply after 013-014.
 
 ## Run
 
@@ -21,13 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(ui): add reusable cards and practice layout"
+git commit -m "feat(analytics): add topic mastery api"
 ```
-
-## Adds
-
-- Reusable `StatCard`
-- Reusable `QuestionCard`
-- Reusable `SolutionPanel`
-- Basic `PracticePage`
-- Route `/practice`
