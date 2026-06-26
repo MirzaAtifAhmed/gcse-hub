@@ -1,6 +1,6 @@
-# Features 017-018 - Update Mastery on Answer
+# Features 019-020 - Weak Topics UI
 
-Apply after 015-016.
+Apply after 017-018.
 
 ## Run
 
@@ -13,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(analytics): update topic mastery after answers"
+git commit -m "feat(analytics): add weak topics panel"
 ```
