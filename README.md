@@ -1,25 +1,14 @@
-# 018 - Web MCQ, Diagram and 90 Minute Paper UI
+# 019 Fix web styles after 018
 
-Apply this after `017-real-exam-style-upgrade`.
+Apply this patch after `018-web-mcq-diagram-exam-ui`.
 
-## What this adds
+It restores the full global stylesheet and keeps the new 018 MCQ/diagram/exam UI classes as additive styles.
 
-- Multiple choice answer UI for generated questions
-- Simple diagram rendering support for angle/rectangle/circle/triangle/bar/coordinate style questions
-- Topic, skill, difficulty, marks and estimated time badges on questions
-- 90 minute paper button
-- Better exam summary showing total marks and estimated time
-- Reuses existing `GeneratedQuestion` type shape from the working project baseline
+Files changed:
 
-## Files changed
-
-- `apps/web/src/components/questions/QuestionDiagram.tsx`
-- `apps/web/src/pages/DashboardPage.tsx`
 - `apps/web/src/styles.css`
 
-## After applying
-
-Run:
+Then run:
 
 ```bash
 npm run typecheck
