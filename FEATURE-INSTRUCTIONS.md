@@ -1,6 +1,12 @@
-# Features 019-020 - Weak Topics UI
+# Fix: Missing Exam and Report Types
 
-Apply after 017-018.
+Apply this ZIP with Merge/Replace.
+
+It updates:
+
+```text
+packages/types/src/index.ts
+```
 
 ## Run
 
@@ -12,6 +18,6 @@ yarn build
 ## Commit
 
 ```bash
-git add .
-git commit -m "feat(analytics): add weak topics panel"
+git add packages/types/src/index.ts
+git commit -m "fix(types): add missing exam and report shared types"
 ```

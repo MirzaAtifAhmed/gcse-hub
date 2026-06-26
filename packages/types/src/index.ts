@@ -3,6 +3,7 @@ export type KeyStage = 'KS3' | 'KS4';
 export type GcseTarget = 'foundation' | 'higher' | 'undecided';
 export type QuestionType = 'short-answer' | 'multiple-choice' | 'worked';
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
+export type ExamAttemptStatus = 'in-progress' | 'submitted';
 
 export interface AuthUser {
   id: string;
@@ -120,54 +121,6 @@ export interface GeneratedExamPaper {
   createdAt: string;
 }
 
-export interface PracticeAnswerResult {
-  questionId: string;
-  submittedAnswer: string;
-  correctAnswer: string;
-  isCorrect: boolean;
-  awardedMarks: number;
-  totalMarks: number;
-  solution: QuestionSolution;
-  checkedAt: string;
-}
-
-export interface AdminUserSummary {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  currentYear?: number;
-  target?: GcseTarget;
-  parentId?: string;
-  parentName?: string;
-  childrenCount: number;
-  createdAt?: string;
-}
-
-export interface AdminAccountsSummary {
-  totals: {
-    all: number;
-    parents: number;
-    students: number;
-    admins: number;
-  };
-  users: AdminUserSummary[];
-}
-
-export interface DashboardSummary {
-  user: AuthUser;
-  subjects: Subject[];
-  children: ChildProfile[];
-  stats: {
-    questionsAnswered: number;
-    accuracy: number;
-    totalStudyMinutes: number;
-    examsCompleted: number;
-  };
-}
-
-export type ExamAttemptStatus = 'in-progress' | 'submitted';
-
 export interface ExamAttemptAnswer {
   questionId: string;
   answer: string;
@@ -216,4 +169,50 @@ export interface StudentReportSummary {
     awardedMarks: number;
     totalMarks: number;
   }>;
+}
+
+export interface PracticeAnswerResult {
+  questionId: string;
+  submittedAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+  awardedMarks: number;
+  totalMarks: number;
+  solution: QuestionSolution;
+  checkedAt: string;
+}
+
+export interface AdminUserSummary {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  currentYear?: number;
+  target?: GcseTarget;
+  parentId?: string;
+  parentName?: string;
+  childrenCount: number;
+  createdAt?: string;
+}
+
+export interface AdminAccountsSummary {
+  totals: {
+    all: number;
+    parents: number;
+    students: number;
+    admins: number;
+  };
+  users: AdminUserSummary[];
+}
+
+export interface DashboardSummary {
+  user: AuthUser;
+  subjects: Subject[];
+  children: ChildProfile[];
+  stats: {
+    questionsAnswered: number;
+    accuracy: number;
+    totalStudyMinutes: number;
+    examsCompleted: number;
+  };
 }
