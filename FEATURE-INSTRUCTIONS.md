@@ -1,6 +1,6 @@
-# Features 015-016 - Topic Mastery API
+# Features 017-018 - Update Mastery on Answer
 
-Apply after 013-014.
+Apply after 015-016.
 
 ## Run
 
@@ -13,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(analytics): add topic mastery api"
+git commit -m "feat(analytics): update topic mastery after answers"
 ```

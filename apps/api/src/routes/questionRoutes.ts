@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { submitGeneratedAnswer } from '../controllers/generatedAnswerController.js';
 import { getGeneratedPracticeQuestions } from '../controllers/generatedQuestionController.js';
 import {
   listPracticeQuestions,
@@ -10,4 +11,5 @@ export const questionRoutes = Router();
 
 questionRoutes.get('/practice', requireAuth, listPracticeQuestions);
 questionRoutes.get('/generated-practice', requireAuth, getGeneratedPracticeQuestions);
+questionRoutes.post('/generated-answer', requireAuth, submitGeneratedAnswer);
 questionRoutes.post('/:questionId/answer', requireAuth, submitPracticeAnswer);
