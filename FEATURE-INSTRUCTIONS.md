@@ -1,6 +1,6 @@
-# Feature 002 - Topic Coverage UI
+# Feature 003 - More Maths Generators
 
-Apply after Feature 001.
+Apply after Feature 002.
 
 ## Run
 
@@ -13,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(curriculum): show topic coverage on dashboard"
+git commit -m "feat(maths): add number fractions angles and area generators"
 ```
