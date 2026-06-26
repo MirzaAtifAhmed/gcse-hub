@@ -1,6 +1,6 @@
-# Feature 005 - Topic Filter Generated Practice
+# Feature 006 - Child Account Debug Helper
 
-Apply after Feature 004.
+Apply after Feature 005.
 
 ## Run
 
@@ -13,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(practice): add topic filter to generated questions"
+git commit -m "feat(parent): add child creation debug endpoint"
 ```
