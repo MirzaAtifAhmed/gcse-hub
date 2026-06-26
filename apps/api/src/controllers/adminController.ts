@@ -1,9 +1,29 @@
 import type { Request, Response } from 'express';
+import { z } from 'zod';
 import { User } from '../models/User.js';
 
-export async function getAccountsOverview(_req: Request, res: Response) {
+const querySchema = z.object({
+  role: z.enum(['student', 'parent', 'admin']).optional(),
+  q: z.string().optional(),
+});
+
+export async function getAccountsOverview(req: Request, res: Response) {
+  const query = querySchema.parse(req.query);
+  const filter: Record<string, unknown> = {};
+
+  if (query.role) {
+    filter.role = query.role;
+  }
+
+  if (query.q) {
+    filter.$or = [
+      { name: { $regex: query.q, $options: 'i' } },
+      { email: { $regex: query.q, $options: 'i' } },
+    ];
+  }
+
   const [users, parents, totals] = await Promise.all([
-    User.find({}).sort({ createdAt: -1 }).limit(200),
+    User.find(filter).sort({ createdAt: -1 }).limit(200),
     User.find({ role: 'parent' }).select('_id name'),
     Promise.all([
       User.countDocuments({}),

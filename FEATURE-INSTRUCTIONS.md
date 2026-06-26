@@ -1,6 +1,6 @@
-# Feature 006 - Child Account Debug Helper
+# Feature 007 - Admin Search and Filters
 
-Apply after Feature 005.
+Apply after Feature 006.
 
 ## Run
 
@@ -13,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(parent): add child creation debug endpoint"
+git commit -m "feat(admin): add account search and role filter"
 ```
