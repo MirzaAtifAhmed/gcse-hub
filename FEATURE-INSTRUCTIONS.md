@@ -1,12 +1,6 @@
-# Feature 001 - Topic Coverage API
+# Feature 002 - Topic Coverage UI
 
-## Branch
-
-```bash
-git checkout main
-git pull
-git checkout -b feature/001-topic-coverage-api
-```
+Apply after Feature 001.
 
 ## Run
 
@@ -19,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(curriculum): add topic coverage api"
+git commit -m "feat(curriculum): show topic coverage on dashboard"
 ```
