@@ -13,6 +13,7 @@ import { dashboardRoutes } from './routes/dashboardRoutes.js';
 import { examRoutes } from './routes/examRoutes.js';
 import { questionRoutes } from './routes/questionRoutes.js';
 import { reportRoutes } from './routes/reportRoutes.js';
+import { topicCoverageRoutes } from './routes/topicCoverageRoutes.js';
 
 export const app = express();
 
@@ -33,13 +34,12 @@ app.use('/api/curriculum', curriculumRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/topic-coverage', topicCoverageRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err instanceof ZodError) {
-    return res
-      .status(400)
-      .json({ success: false, message: 'Validation error', errors: err.flatten() });
+    return res.status(400).json({ success: false, message: 'Validation error', errors: err.flatten() });
   }
 
   console.error(err);

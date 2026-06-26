@@ -1,18 +1,12 @@
-# Feature: Child Form First Name, Surname and Confirm Password
-
-Apply this after `feat(auth): add first name surname and confirm password fields`.
+# Feature 001 - Topic Coverage API
 
 ## Branch
 
 ```bash
 git checkout main
 git pull
-git checkout -b feature/child-form-name-fields
+git checkout -b feature/001-topic-coverage-api
 ```
-
-## Apply
-
-Extract ZIP using Merge/Replace.
 
 ## Run
 
@@ -25,11 +19,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(parent): update child form with first name surname and confirm password"
+git commit -m "feat(curriculum): add topic coverage api"
 ```
-
-## What changes
-
-- Parent Add Child form now sends `firstName`, `surname`, `password`, and `confirmPassword`
-- Client-side password mismatch validation
-- Error message shown when create child fails
