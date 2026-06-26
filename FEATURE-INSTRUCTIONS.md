@@ -1,6 +1,6 @@
-# Feature 009 - Health Diagnostics
+# Feature 010 - Branch Workflow Docs
 
-Apply after Feature 008.
+Apply after Feature 009.
 
 ## Run
 
@@ -13,5 +13,5 @@ yarn build
 
 ```bash
 git add .
-git commit -m "feat(api): add diagnostics endpoint"
+git commit -m "docs: add feature branch workflow"
 ```
