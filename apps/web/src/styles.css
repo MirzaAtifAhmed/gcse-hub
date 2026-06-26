@@ -664,3 +664,63 @@ th {
     border-bottom: 1px solid #e2e8f0;
   }
 }
+
+/* 020 GCSE engine additions */
+.question-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 14px;
+}
+
+.question-diagram {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px dashed #cbd5e1;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  color: #334155;
+}
+
+.question-diagram-svg {
+  display: block;
+  width: min(100%, 460px);
+  height: auto;
+  margin: 0 auto;
+}
+
+.question-diagram-text {
+  fill: currentColor;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.question-diagram-generic {
+  display: grid;
+  gap: 4px;
+  place-items: center;
+  min-height: 120px;
+  color: #475569;
+}
+
+.exam-summary h3 {
+  margin-top: 0;
+}
+
+.exam-topic-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.exam-topic-breakdown span {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #ecfeff;
+  color: #155e75;
+  border: 1px solid #a5f3fc;
+  padding: 6px 10px;
+  font-weight: 800;
+  font-size: 12px;
+}

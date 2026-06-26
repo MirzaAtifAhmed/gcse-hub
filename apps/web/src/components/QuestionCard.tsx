@@ -1,10 +1,8 @@
 import type { GeneratedQuestion } from '@gcse-hub/types';
+import { isAnswerCorrect } from '@gcse-hub/shared';
 import { type FormEvent, useState } from 'react';
 import { SolutionPanel } from './SolutionPanel';
-
-function normalise(value: string) {
-  return value.toLowerCase().replace(/\s+/g, '').replace(/£/g, '').replace(/,/g, '');
-}
+import { QuestionDiagram } from './questions/QuestionDiagram';
 
 export function QuestionCard({ question, index }: { question: GeneratedQuestion; index?: number }) {
   const [submittedAnswer, setSubmittedAnswer] = useState('');
@@ -17,7 +15,7 @@ export function QuestionCard({ question, index }: { question: GeneratedQuestion;
     setChecked(true);
   }
 
-  const isCorrect = normalise(submittedAnswer) === normalise(question.answer);
+  const isCorrect = isAnswerCorrect(submittedAnswer, question.answer);
 
   return (
     <article className="child-card">
@@ -27,14 +25,27 @@ export function QuestionCard({ question, index }: { question: GeneratedQuestion;
         {question.title}
       </h3>
       <p>{question.questionText}</p>
+      <QuestionDiagram question={question} />
       <p className="small-muted">
-        {question.marks} marks · Difficulty {question.difficulty} · {question.estimatedSeconds}s
+        {question.marks} mark{question.marks === 1 ? '' : 's'} · Difficulty {question.difficulty} · Estimated{' '}
+        {Math.max(1, Math.round(question.estimatedSeconds / 60))} min
       </p>
 
       <form className="answer-form" onSubmit={onSubmit}>
-        <input name="answer" placeholder="Type your answer" required />
+        {question.options && question.options.length > 0 ? (
+          <div className="mcq-options">
+            {question.options.map((option) => (
+              <label className="mcq-option" key={option.id}>
+                <input name="answer" type="radio" value={option.value} required />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </div>
+        ) : (
+          <input name="answer" placeholder="Type your answer" required />
+        )}
         <button className="btn btn-primary" type="submit">
-          Check
+          Check answer
         </button>
       </form>
 
@@ -42,15 +53,11 @@ export function QuestionCard({ question, index }: { question: GeneratedQuestion;
         <div className={isCorrect ? 'success-box' : 'error-box'}>
           <h4>{isCorrect ? 'Correct' : 'Not quite'}</h4>
           <p>
-            Your answer: <strong>{submittedAnswer}</strong>
-          </p>
-          <p>
             Correct answer: <strong>{question.answer}</strong>
           </p>
+          <SolutionPanel solution={question.solution} />
         </div>
       )}
-
-      {checked && <SolutionPanel solution={question.solution} />}
     </article>
   );
 }

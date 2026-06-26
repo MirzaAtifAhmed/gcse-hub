@@ -13,7 +13,7 @@ function getString(data: DiagramData, key: string, fallback: string): string {
 }
 
 function AngleLineDiagram({ data }: { data: DiagramData }) {
-  const angle = getNumber(data, 'angle', 65);
+  const angle = getNumber(data, 'angle', getNumber(data, 'knownAngle', 65));
   const label = getString(data, 'label', 'x');
 
   return (
@@ -71,6 +71,26 @@ function TriangleDiagram({ data }: { data: DiagramData }) {
   );
 }
 
+
+function RatioBarDiagram({ data }: { data: DiagramData }) {
+  const partA = getNumber(data, 'partA', 2);
+  const partB = getNumber(data, 'partB', 3);
+  const total = getNumber(data, 'total', 100);
+  const totalParts = partA + partB;
+  const widthA = 260 * (partA / totalParts);
+  const widthB = 260 * (partB / totalParts);
+
+  return (
+    <svg className="question-diagram-svg" viewBox="0 0 360 170" role="img" aria-label="Ratio bar diagram">
+      <rect x="50" y="55" width={widthA} height="48" fill="none" stroke="currentColor" strokeWidth="3" />
+      <rect x={50 + widthA} y="55" width={widthB} height="48" fill="none" stroke="currentColor" strokeWidth="3" />
+      <text x={50 + widthA / 2 - 8} y="85" className="question-diagram-text">{partA}</text>
+      <text x={50 + widthA + widthB / 2 - 8} y="85" className="question-diagram-text">{partB}</text>
+      <text x="120" y="130" className="question-diagram-text">Total = £{total}</text>
+    </svg>
+  );
+}
+
 function GenericDiagram({ type }: { type: string }) {
   return (
     <div className="question-diagram-generic">
@@ -95,7 +115,8 @@ export function QuestionDiagram({ question }: { question: GeneratedQuestion }) {
       {diagram.type === 'rectangle' && <RectangleDiagram data={data} />}
       {diagram.type === 'circle' && <CircleDiagram data={data} />}
       {diagram.type === 'triangle' && <TriangleDiagram data={data} />}
-      {!['angle-line', 'rectangle', 'circle', 'triangle'].includes(diagram.type) && <GenericDiagram type={diagram.type} />}
+      {diagram.type === 'ratio-bar' && <RatioBarDiagram data={data} />}
+      {!['angle-line', 'rectangle', 'circle', 'triangle', 'ratio-bar'].includes(diagram.type) && <GenericDiagram type={diagram.type} />}
     </div>
   );
 }

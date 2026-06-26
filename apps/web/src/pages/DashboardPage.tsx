@@ -9,6 +9,7 @@ import type {
   QuestionTemplate,
   StudentReportSummary,
 } from '@gcse-hub/types';
+import { isAnswerCorrect } from '@gcse-hub/shared';
 import { type FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 import { QuestionDiagram } from '../components/questions/QuestionDiagram';
@@ -148,9 +149,7 @@ export function DashboardPage() {
     const answer = String(form.get('answer')).trim();
 
     if (isGeneratedQuestion(question)) {
-      const isCorrect =
-        answer.toLowerCase().replace(/\s+/g, '').replace(/£/g, '') ===
-        question.answer.toLowerCase().replace(/\s+/g, '').replace(/£/g, '');
+      const isCorrect = isAnswerCorrect(answer, question.answer);
 
       setResults((current) => ({
         ...current,
@@ -506,6 +505,13 @@ export function DashboardPage() {
                   {exam.questions.length} questions · {exam.totalMarks} marks · {exam.durationMinutes}{' '}
                   minutes · estimated {Math.round(exam.estimatedSeconds / 60)} min
                 </p>
+                <div className="exam-topic-breakdown">
+                  {Object.entries(exam.topicBreakdown).map(([topic, count]) => (
+                    <span key={topic}>
+                      {topic}: {count}
+                    </span>
+                  ))}
+                </div>
                 {attempt && !submission && (
                   <button className="btn btn-primary" onClick={submitExam}>
                     Submit exam

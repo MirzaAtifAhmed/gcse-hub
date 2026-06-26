@@ -6,6 +6,7 @@ import {
   generateFractionOfAmountQuestion,
   generatePercentageIncreaseQuestion,
 } from './mathsExtraGenerators.js';
+import { gcseExamStyleGenerators } from './gcseExamStyleGenerators.js';
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -237,6 +238,7 @@ export function generateMixedMathsQuestions(year = 8, count = 10): GeneratedQues
     () => generateLinearEquationQuestion(year),
     () => generateRatioSharingQuestion(year),
     () => generatePercentageIncreaseQuestion(year),
+    ...gcseExamStyleGenerators.map((generator) => () => generator(year)),
   ];
 
   return Array.from({ length: count }, (_, index) => {
