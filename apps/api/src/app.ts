@@ -11,6 +11,7 @@ import { childrenRoutes } from './routes/childrenRoutes.js';
 import { curriculumRoutes } from './routes/curriculumRoutes.js';
 import { dashboardRoutes } from './routes/dashboardRoutes.js';
 import { examRoutes } from './routes/examRoutes.js';
+import { learningPlanRoutes } from './routes/learningPlanRoutes.js';
 import { masteryRoutes } from './routes/masteryRoutes.js';
 import { questionRoutes } from './routes/questionRoutes.js';
 import { reportRoutes } from './routes/reportRoutes.js';
@@ -37,6 +38,7 @@ app.use('/api/exams', examRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/topic-coverage', topicCoverageRoutes);
 app.use('/api/mastery', masteryRoutes);
+app.use('/api/learning-plan', learningPlanRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
