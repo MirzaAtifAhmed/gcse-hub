@@ -1,18 +1,17 @@
-# Feature 008 - Seed Demo Users
+# Feature 009 - Health Diagnostics
 
-Apply after Feature 007.
+Apply after Feature 008.
 
 ## Run
 
 ```bash
 yarn typecheck
 yarn build
-yarn workspace @gcse-hub/api seed
 ```
 
 ## Commit
 
 ```bash
 git add .
-git commit -m "feat(seed): add demo parent and student accounts"
+git commit -m "feat(api): add diagnostics endpoint"
 ```

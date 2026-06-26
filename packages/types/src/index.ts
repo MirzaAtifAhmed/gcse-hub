@@ -165,3 +165,55 @@ export interface DashboardSummary {
     examsCompleted: number;
   };
 }
+
+export type ExamAttemptStatus = 'in-progress' | 'submitted';
+
+export interface ExamAttemptAnswer {
+  questionId: string;
+  answer: string;
+  isCorrect?: boolean;
+  awardedMarks?: number;
+  totalMarks: number;
+}
+
+export interface ExamAttempt {
+  id: string;
+  studentId: string;
+  paper: GeneratedExamPaper;
+  answers: ExamAttemptAnswer[];
+  status: ExamAttemptStatus;
+  startedAt: string;
+  submittedAt?: string;
+  totalMarks: number;
+  awardedMarks: number;
+  percentage: number;
+}
+
+export interface ExamAttemptResultQuestion {
+  question: GeneratedQuestion;
+  submittedAnswer: string;
+  isCorrect: boolean;
+  awardedMarks: number;
+  totalMarks: number;
+}
+
+export interface ExamSubmissionResult {
+  attempt: ExamAttempt;
+  questions: ExamAttemptResultQuestion[];
+}
+
+export interface StudentReportSummary {
+  student: ChildProfile | AuthUser;
+  completedExams: number;
+  questionsAnswered: number;
+  averagePercentage: number;
+  bestPercentage: number;
+  recentExams: Array<{
+    id: string;
+    title: string;
+    submittedAt?: string;
+    percentage: number;
+    awardedMarks: number;
+    totalMarks: number;
+  }>;
+}
