@@ -11,13 +11,42 @@ import type {
 } from '@gcse-hub/types';
 import { type FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
+import { QuestionDiagram } from '../components/questions/QuestionDiagram';
 import { api } from '../lib/api';
-import { isAnswerCorrect } from '../utils/answerNormalise';
 
 type PracticeQuestion = QuestionTemplate | GeneratedQuestion;
 
 function isGeneratedQuestion(question: PracticeQuestion): question is GeneratedQuestion {
   return !('subjectId' in question);
+}
+
+
+function formatQuestionType(type?: string) {
+  if (!type) return 'short answer';
+  return type.replace(/-/g, ' ');
+}
+
+function formatEstimatedTime(seconds?: number) {
+  if (!seconds) return null;
+  const minutes = Math.max(1, Math.round(seconds / 60));
+  return `${minutes} min`;
+}
+
+function getQuestionOptions(question: PracticeQuestion): Array<{ id: string; label: string; value: string }> {
+  const maybeOptions = (question as { options?: Array<{ id: string; label: string; value: string }> }).options;
+  return Array.isArray(maybeOptions) ? maybeOptions : [];
+}
+
+function getQuestionBadges(question: PracticeQuestion) {
+  const generated = question as Partial<GeneratedQuestion>;
+  return [
+    generated.topic,
+    generated.skill,
+    generated.type ? formatQuestionType(generated.type) : undefined,
+    generated.difficulty ? `Difficulty ${generated.difficulty}` : undefined,
+    `${question.marks} ${question.marks === 1 ? 'mark' : 'marks'}`,
+    formatEstimatedTime(generated.estimatedSeconds),
+  ].filter(Boolean);
 }
 
 export function DashboardPage() {
@@ -49,7 +78,7 @@ export function DashboardPage() {
 
   async function loadPracticeQuestions() {
     const year = user?.currentYear ?? 8;
-    const res = await api.get(`/questions/generated-practice?year=${year}&count=8`);
+    const res = await api.get(`/questions/generated-practice?year=${year}&count=10`);
     setQuestions(res.data.data);
     setExam(null);
     setAttempt(null);
@@ -119,7 +148,9 @@ export function DashboardPage() {
     const answer = String(form.get('answer')).trim();
 
     if (isGeneratedQuestion(question)) {
-      const isCorrect = isAnswerCorrect(answer, question.answer);
+      const isCorrect =
+        answer.toLowerCase().replace(/\s+/g, '').replace(/£/g, '') ===
+        question.answer.toLowerCase().replace(/\s+/g, '').replace(/£/g, '');
 
       setResults((current) => ({
         ...current,
@@ -203,60 +234,6 @@ export function DashboardPage() {
     );
   }
 
-
-  function renderQuestionDiagram(question: GeneratedQuestion) {
-    if (!question.diagram || question.diagram.type === 'none') {
-      return null;
-    }
-
-    if (question.diagram.type === 'rectangle') {
-      const length = String(question.diagram.data?.length ?? '');
-      const width = String(question.diagram.data?.width ?? '');
-      const unit = String(question.diagram.data?.unit ?? '');
-      return (
-        <svg className="question-diagram" viewBox="0 0 260 150" role="img" aria-label="Rectangle diagram">
-          <rect x="45" y="30" width="170" height="90" rx="8" fill="#eff6ff" stroke="#2563eb" strokeWidth="3" />
-          <text x="130" y="142" textAnchor="middle">{length} {unit}</text>
-          <text x="22" y="78" textAnchor="middle" transform="rotate(-90 22 78)">{width} {unit}</text>
-        </svg>
-      );
-    }
-
-    if (question.diagram.type === 'angle-line') {
-      const knownAngle = String(question.diagram.data?.knownAngle ?? '');
-      return (
-        <svg className="question-diagram" viewBox="0 0 280 150" role="img" aria-label="Angles on a straight line diagram">
-          <line x1="35" y1="105" x2="245" y2="105" stroke="#0f172a" strokeWidth="4" />
-          <line x1="140" y1="105" x2="78" y2="40" stroke="#2563eb" strokeWidth="4" />
-          <path d="M 105 105 A 35 35 0 0 1 116 72" fill="none" stroke="#7c3aed" strokeWidth="3" />
-          <path d="M 166 105 A 35 35 0 0 0 116 72" fill="none" stroke="#16a34a" strokeWidth="3" />
-          <text x="86" y="90">{knownAngle}°</text>
-          <text x="168" y="88">x°</text>
-        </svg>
-      );
-    }
-
-    if (question.diagram.type === 'ratio-bar') {
-      const partA = Number(question.diagram.data?.partA ?? 1);
-      const partB = Number(question.diagram.data?.partB ?? 1);
-      const total = String(question.diagram.data?.total ?? '');
-      const totalParts = Math.max(1, partA + partB);
-      const widthA = (180 * partA) / totalParts;
-      const widthB = (180 * partB) / totalParts;
-      return (
-        <svg className="question-diagram" viewBox="0 0 280 110" role="img" aria-label="Ratio bar diagram">
-          <rect x="45" y="35" width={widthA} height="34" fill="#dbeafe" stroke="#2563eb" />
-          <rect x={45 + widthA} y="35" width={widthB} height="34" fill="#ede9fe" stroke="#7c3aed" />
-          <text x={45 + widthA / 2} y="57" textAnchor="middle">{partA} parts</text>
-          <text x={45 + widthA + widthB / 2} y="57" textAnchor="middle">{partB} parts</text>
-          <text x="135" y="92" textAnchor="middle">Total £{total}</text>
-        </svg>
-      );
-    }
-
-    return null;
-  }
-
   function renderPracticeQuestion(question: PracticeQuestion, index?: number) {
     const result = results[question.id];
 
@@ -266,18 +243,23 @@ export function DashboardPage() {
           {index ? `Question ${index}: ` : ''}
           {question.title}
         </h3>
+        <div className="question-badges">
+          {getQuestionBadges(question).map((badge) => (
+            <span className="question-badge" key={badge}>{badge}</span>
+          ))}
+        </div>
         <p>{question.questionText}</p>
-        {isGeneratedQuestion(question) && renderQuestionDiagram(question)}
+        {isGeneratedQuestion(question) && <QuestionDiagram question={question} />}
         <form className="answer-form" onSubmit={(event) => submitPracticeAnswer(event, question)}>
-          {isGeneratedQuestion(question) && question.type === 'multiple-choice' && question.options ? (
-            <select name="answer" required>
-              <option value="">Choose an answer</option>
-              {question.options.map((option) => (
-                <option key={option.id} value={option.value}>
-                  {option.label}
-                </option>
+          {getQuestionOptions(question).length > 0 ? (
+            <div className="mcq-options">
+              {getQuestionOptions(question).map((option) => (
+                <label className="mcq-option" key={option.id}>
+                  <input name="answer" type="radio" value={option.value} required />
+                  <span>{option.label}</span>
+                </label>
               ))}
-            </select>
+            </div>
           ) : (
             <input name="answer" placeholder="Type your answer" required />
           )}
@@ -312,19 +294,24 @@ export function DashboardPage() {
         <h3>
           Question {index}: {question.title}
         </h3>
+        <div className="question-badges">
+          {getQuestionBadges(question).map((badge) => (
+            <span className="question-badge" key={badge}>{badge}</span>
+          ))}
+        </div>
         <p>{question.questionText}</p>
-        {renderQuestionDiagram(question)}
+        <QuestionDiagram question={question} />
         {!submission && (
           <form className="answer-form" onSubmit={(event) => saveExamAnswer(event, question.id)}>
-            {question.type === 'multiple-choice' && question.options ? (
-              <select name="answer" required>
-                <option value="">Choose an answer</option>
-                {question.options.map((option) => (
-                  <option key={option.id} value={option.value}>
-                    {option.label}
-                  </option>
+            {getQuestionOptions(question).length > 0 ? (
+              <div className="mcq-options">
+                {getQuestionOptions(question).map((option) => (
+                  <label className="mcq-option" key={option.id}>
+                    <input name="answer" type="radio" value={option.value} />
+                    <span>{option.label}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             ) : (
               <input name="answer" placeholder="Type your answer" />
             )}
@@ -507,7 +494,7 @@ export function DashboardPage() {
                   60 min paper
                 </button>
                 <button className="btn btn-primary" onClick={() => generateExam(90)}>
-                  90 min paper
+                  90 min mock
                 </button>
               </div>
             </div>
@@ -517,7 +504,7 @@ export function DashboardPage() {
                 <h3>{exam.title}</h3>
                 <p>
                   {exam.questions.length} questions · {exam.totalMarks} marks · {exam.durationMinutes}{' '}
-                  minutes
+                  minutes · estimated {Math.round(exam.estimatedSeconds / 60)} min
                 </p>
                 {attempt && !submission && (
                   <button className="btn btn-primary" onClick={submitExam}>

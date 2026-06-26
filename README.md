@@ -1,31 +1,23 @@
-# 017 Real Exam Style Upgrade
+# 018 - Web MCQ, Diagram and 90 Minute Paper UI
 
-Apply this patch on top of the last known working project where the degree/cm² answer checker was fixed.
+Apply this after `017-real-exam-style-upgrade`.
 
-This patch is intentionally compatible with the existing type model you provided. It does not use the broken V2 type shape from earlier patches.
+## What this adds
 
-## Changes
+- Multiple choice answer UI for generated questions
+- Simple diagram rendering support for angle/rectangle/circle/triangle/bar/coordinate style questions
+- Topic, skill, difficulty, marks and estimated time badges on questions
+- 90 minute paper button
+- Better exam summary showing total marks and estimated time
+- Reuses existing `GeneratedQuestion` type shape from the working project baseline
 
-- Keeps existing `@gcse-hub/types` shape and only adds optional support for:
-  - multiple-choice options
-  - simple diagram specs
-  - calculator/exam-style metadata
-- Makes exam papers more realistic:
-  - 30 minutes: 8 questions
-  - 45 minutes: 12 questions
-  - 60 minutes: 16 questions
-  - 90 minutes: 22 questions
-- Adds more multi-step and real-world maths questions.
-- Adds progressive difficulty by year.
-- Adds multiple-choice support.
-- Adds simple SVG rendering for rectangle, angle-line and ratio-bar questions.
-- Keeps tolerant marking for degree/cm² answers on both API and web.
+## Files changed
 
-## Apply order
+- `apps/web/src/components/questions/QuestionDiagram.tsx`
+- `apps/web/src/pages/DashboardPage.tsx`
+- `apps/web/src/styles.css`
 
-Use this as the new clean forward patch instead of old 017-021 patches.
-
-## Check
+## After applying
 
 Run:
 
