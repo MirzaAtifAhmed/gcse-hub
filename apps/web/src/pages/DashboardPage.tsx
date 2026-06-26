@@ -12,6 +12,7 @@ import type {
 import { type FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 import { api } from '../lib/api';
+import { isAnswerCorrect } from '../utils/answerNormalise';
 
 type PracticeQuestion = QuestionTemplate | GeneratedQuestion;
 
@@ -118,9 +119,7 @@ export function DashboardPage() {
     const answer = String(form.get('answer')).trim();
 
     if (isGeneratedQuestion(question)) {
-      const isCorrect =
-        answer.toLowerCase().replace(/\s+/g, '').replace(/£/g, '') ===
-        question.answer.toLowerCase().replace(/\s+/g, '').replace(/£/g, '');
+      const isCorrect = isAnswerCorrect(answer, question.answer);
 
       setResults((current) => ({
         ...current,
@@ -204,6 +203,60 @@ export function DashboardPage() {
     );
   }
 
+
+  function renderQuestionDiagram(question: GeneratedQuestion) {
+    if (!question.diagram || question.diagram.type === 'none') {
+      return null;
+    }
+
+    if (question.diagram.type === 'rectangle') {
+      const length = String(question.diagram.data?.length ?? '');
+      const width = String(question.diagram.data?.width ?? '');
+      const unit = String(question.diagram.data?.unit ?? '');
+      return (
+        <svg className="question-diagram" viewBox="0 0 260 150" role="img" aria-label="Rectangle diagram">
+          <rect x="45" y="30" width="170" height="90" rx="8" fill="#eff6ff" stroke="#2563eb" strokeWidth="3" />
+          <text x="130" y="142" textAnchor="middle">{length} {unit}</text>
+          <text x="22" y="78" textAnchor="middle" transform="rotate(-90 22 78)">{width} {unit}</text>
+        </svg>
+      );
+    }
+
+    if (question.diagram.type === 'angle-line') {
+      const knownAngle = String(question.diagram.data?.knownAngle ?? '');
+      return (
+        <svg className="question-diagram" viewBox="0 0 280 150" role="img" aria-label="Angles on a straight line diagram">
+          <line x1="35" y1="105" x2="245" y2="105" stroke="#0f172a" strokeWidth="4" />
+          <line x1="140" y1="105" x2="78" y2="40" stroke="#2563eb" strokeWidth="4" />
+          <path d="M 105 105 A 35 35 0 0 1 116 72" fill="none" stroke="#7c3aed" strokeWidth="3" />
+          <path d="M 166 105 A 35 35 0 0 0 116 72" fill="none" stroke="#16a34a" strokeWidth="3" />
+          <text x="86" y="90">{knownAngle}°</text>
+          <text x="168" y="88">x°</text>
+        </svg>
+      );
+    }
+
+    if (question.diagram.type === 'ratio-bar') {
+      const partA = Number(question.diagram.data?.partA ?? 1);
+      const partB = Number(question.diagram.data?.partB ?? 1);
+      const total = String(question.diagram.data?.total ?? '');
+      const totalParts = Math.max(1, partA + partB);
+      const widthA = (180 * partA) / totalParts;
+      const widthB = (180 * partB) / totalParts;
+      return (
+        <svg className="question-diagram" viewBox="0 0 280 110" role="img" aria-label="Ratio bar diagram">
+          <rect x="45" y="35" width={widthA} height="34" fill="#dbeafe" stroke="#2563eb" />
+          <rect x={45 + widthA} y="35" width={widthB} height="34" fill="#ede9fe" stroke="#7c3aed" />
+          <text x={45 + widthA / 2} y="57" textAnchor="middle">{partA} parts</text>
+          <text x={45 + widthA + widthB / 2} y="57" textAnchor="middle">{partB} parts</text>
+          <text x="135" y="92" textAnchor="middle">Total £{total}</text>
+        </svg>
+      );
+    }
+
+    return null;
+  }
+
   function renderPracticeQuestion(question: PracticeQuestion, index?: number) {
     const result = results[question.id];
 
@@ -214,8 +267,20 @@ export function DashboardPage() {
           {question.title}
         </h3>
         <p>{question.questionText}</p>
+        {isGeneratedQuestion(question) && renderQuestionDiagram(question)}
         <form className="answer-form" onSubmit={(event) => submitPracticeAnswer(event, question)}>
-          <input name="answer" placeholder="Type your answer" required />
+          {isGeneratedQuestion(question) && question.type === 'multiple-choice' && question.options ? (
+            <select name="answer" required>
+              <option value="">Choose an answer</option>
+              {question.options.map((option) => (
+                <option key={option.id} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input name="answer" placeholder="Type your answer" required />
+          )}
           <button className="btn btn-primary" type="submit">
             Check answer
           </button>
@@ -248,9 +313,21 @@ export function DashboardPage() {
           Question {index}: {question.title}
         </h3>
         <p>{question.questionText}</p>
+        {renderQuestionDiagram(question)}
         {!submission && (
           <form className="answer-form" onSubmit={(event) => saveExamAnswer(event, question.id)}>
-            <input name="answer" placeholder="Type your answer" />
+            {question.type === 'multiple-choice' && question.options ? (
+              <select name="answer" required>
+                <option value="">Choose an answer</option>
+                {question.options.map((option) => (
+                  <option key={option.id} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input name="answer" placeholder="Type your answer" />
+            )}
             <button className="btn btn-secondary" type="submit">
               Save answer
             </button>
@@ -428,6 +505,9 @@ export function DashboardPage() {
                 </button>
                 <button className="btn btn-primary" onClick={() => generateExam(60)}>
                   60 min paper
+                </button>
+                <button className="btn btn-primary" onClick={() => generateExam(90)}>
+                  90 min paper
                 </button>
               </div>
             </div>

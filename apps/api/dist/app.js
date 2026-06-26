@@ -11,7 +11,10 @@ import { childrenRoutes } from './routes/childrenRoutes.js';
 import { curriculumRoutes } from './routes/curriculumRoutes.js';
 import { dashboardRoutes } from './routes/dashboardRoutes.js';
 import { examRoutes } from './routes/examRoutes.js';
+import { masteryRoutes } from './routes/masteryRoutes.js';
 import { questionRoutes } from './routes/questionRoutes.js';
+import { reportRoutes } from './routes/reportRoutes.js';
+import { topicCoverageRoutes } from './routes/topicCoverageRoutes.js';
 export const app = express();
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
@@ -27,12 +30,13 @@ app.use('/api/children', childrenRoutes);
 app.use('/api/curriculum', curriculumRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/exams', examRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/topic-coverage', topicCoverageRoutes);
+app.use('/api/mastery', masteryRoutes);
 app.use('/api/admin', adminRoutes);
 app.use((err, _req, res, _next) => {
     if (err instanceof ZodError) {
-        return res
-            .status(400)
-            .json({ success: false, message: 'Validation error', errors: err.flatten() });
+        return res.status(400).json({ success: false, message: 'Validation error', errors: err.flatten() });
     }
     console.error(err);
     return res.status(500).json({ success: false, message: 'Internal server error' });

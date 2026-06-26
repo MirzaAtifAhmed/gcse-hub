@@ -75,6 +75,26 @@ export interface QuestionSolution {
   commonMistakes?: string[];
 }
 
+export interface QuestionOption {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface DiagramSpec {
+  type:
+    | 'none'
+    | 'angle-line'
+    | 'rectangle'
+    | 'triangle'
+    | 'circle'
+    | 'bar-chart'
+    | 'line-graph'
+    | 'coordinate-grid'
+    | 'ratio-bar';
+  data?: Record<string, unknown>;
+}
+
 export interface QuestionTemplate {
   id: string;
   subjectId: string;
@@ -90,6 +110,8 @@ export interface QuestionTemplate {
   answer: string;
   solution: QuestionSolution;
   tags: string[];
+  options?: QuestionOption[];
+  diagram?: DiagramSpec;
 }
 
 export interface GeneratedQuestion {
@@ -106,6 +128,10 @@ export interface GeneratedQuestion {
   answer: string;
   solution: QuestionSolution;
   tags: string[];
+  options?: QuestionOption[];
+  diagram?: DiagramSpec;
+  calculatorAllowed?: boolean;
+  examStyle?: boolean;
 }
 
 export interface GeneratedExamPaper {

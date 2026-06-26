@@ -3,12 +3,19 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 import { User } from '../models/User.js';
 import { toChildProfile } from '../utils/mappers.js';
-const createChildSchema = z.object({
-    name: z.string().min(2),
+const createChildSchema = z
+    .object({
+    firstName: z.string().min(2),
+    surname: z.string().min(2),
     email: z.string().email(),
     password: z.string().min(8),
+    confirmPassword: z.string().min(8),
     currentYear: z.number().min(7).max(11),
     target: z.enum(['foundation', 'higher', 'undecided']).default('undecided'),
+})
+    .refine((value) => value.password === value.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
 });
 const promoteSchema = z.object({
     currentYear: z.number().min(7).max(11),
@@ -26,8 +33,11 @@ export async function createChild(req, res) {
         return res.status(409).json({ success: false, message: 'Email is already registered' });
     }
     const passwordHash = await bcrypt.hash(body.password, 12);
+    const name = `${body.firstName} ${body.surname}`;
     const child = await User.create({
-        name: body.name,
+        firstName: body.firstName,
+        surname: body.surname,
+        name,
         email: body.email,
         passwordHash,
         role: 'student',

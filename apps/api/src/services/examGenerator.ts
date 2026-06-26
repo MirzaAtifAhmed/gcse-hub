@@ -6,15 +6,10 @@ function createExamId() {
 }
 
 function getQuestionCount(durationMinutes: number) {
-  if (durationMinutes <= 30) {
-    return 12;
-  }
-
-  if (durationMinutes <= 45) {
-    return 18;
-  }
-
-  return 24;
+  if (durationMinutes <= 30) return 8;
+  if (durationMinutes <= 45) return 12;
+  if (durationMinutes <= 60) return 16;
+  return 22;
 }
 
 function buildTopicBreakdown(questions: GeneratedQuestion[]) {
@@ -25,7 +20,7 @@ function buildTopicBreakdown(questions: GeneratedQuestion[]) {
 }
 
 export function generateMathsExamPaper(year = 8, durationMinutes = 60): GeneratedExamPaper {
-  const safeDuration = [30, 45, 60].includes(durationMinutes) ? durationMinutes : 60;
+  const safeDuration = [30, 45, 60, 90].includes(durationMinutes) ? durationMinutes : 60;
   const questionCount = getQuestionCount(safeDuration);
   const questions = generateMixedMathsQuestions(year, questionCount).map((question, index) => ({
     ...question,
@@ -37,7 +32,7 @@ export function generateMathsExamPaper(year = 8, durationMinutes = 60): Generate
 
   return {
     id: createExamId(),
-    title: `Year ${year} Maths Mixed Practice Paper (${safeDuration} minutes)`,
+    title: `Year ${year} Maths Exam-Style Practice Paper (${safeDuration} minutes)`,
     subject: 'Mathematics',
     year,
     durationMinutes: safeDuration,
