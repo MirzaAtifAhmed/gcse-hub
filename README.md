@@ -1,21 +1,27 @@
-# GCSE Hub
+# 003 Forgiving Answer Checker
 
-**Your GCSE Journey Starts Here**
+Add `apps/web/src/utils/answerNormalise.ts` to the project.
 
-Sprint 1 foundation using **Yarn Classic 1.22.22**.
+Then replace any strict comparison like:
 
-## Setup
-
-```bash
-yarn install
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env
-yarn dev
+```ts
+userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()
 ```
 
-Frontend: http://localhost:5173  
-API: http://localhost:4404/api/health
+with:
 
-## Important
+```ts
+import { checkMathsAnswer } from '../utils/answerNormalise';
 
-This project uses Yarn Classic workspaces. Do **not** use `workspace:*` dependencies because Yarn 1 does not support that protocol.
+checkMathsAnswer(userAnswer, correctAnswer, {
+  requireUnit: false,
+  numericTolerance: 0.000001,
+}).isCorrect
+```
+
+This accepts answers such as:
+
+- `12`, `12cm2`, `12 cm²`, `12 square cm` for `12 cm²`
+- `45`, `45°`, `45 degrees`, `45 deg` for `45°`
+
+If the value is correct but the unit is missing, `message` returns a reminder.
