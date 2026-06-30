@@ -15,6 +15,7 @@ import { learningPlanRoutes } from './routes/learningPlanRoutes.js';
 import { masteryRoutes } from './routes/masteryRoutes.js';
 import { questionRoutes } from './routes/questionRoutes.js';
 import { reportRoutes } from './routes/reportRoutes.js';
+import { revisionPlannerRoutes } from './routes/revisionPlannerRoutes.js';
 import { topicCoverageRoutes } from './routes/topicCoverageRoutes.js';
 
 export const app = express();
@@ -36,6 +37,7 @@ app.use('/api/curriculum', curriculumRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/revision-planner', revisionPlannerRoutes);
 app.use('/api/topic-coverage', topicCoverageRoutes);
 app.use('/api/mastery', masteryRoutes);
 app.use('/api/learning-plan', learningPlanRoutes);

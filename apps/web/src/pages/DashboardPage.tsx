@@ -13,6 +13,8 @@ import { isAnswerCorrect } from '@gcse-hub/shared';
 import { type FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 import { LearningPlanPanel } from '../components/LearningPlanPanel';
+import { RevisionPlannerPanel } from '../components/RevisionPlannerPanel';
+import { ExamReviewSummary } from '../components/ExamReviewSummary';
 import { QuestionDiagram } from '../components/questions/QuestionDiagram';
 import { api } from '../lib/api';
 
@@ -471,6 +473,7 @@ export function DashboardPage() {
         {renderReport()}
 
         {!isParent && <LearningPlanPanel year={user.currentYear ?? 8} />}
+        {!isParent && <RevisionPlannerPanel year={user.currentYear ?? 8} />}
 
         {!isParent && (
           <section className="card section">
@@ -521,12 +524,15 @@ export function DashboardPage() {
                   </button>
                 )}
                 {submission && (
-                  <p>
-                    <strong>
-                      Score: {submission.attempt.awardedMarks}/{submission.attempt.totalMarks} (
-                      {submission.attempt.percentage}%)
-                    </strong>
-                  </p>
+                  <>
+                    <p>
+                      <strong>
+                        Score: {submission.attempt.awardedMarks}/{submission.attempt.totalMarks} (
+                        {submission.attempt.percentage}%)
+                      </strong>
+                    </p>
+                    <ExamReviewSummary submission={submission} />
+                  </>
                 )}
               </section>
             )}

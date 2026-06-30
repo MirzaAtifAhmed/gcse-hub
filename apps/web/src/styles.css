@@ -850,3 +850,93 @@ th {
     width: 100%;
   }
 }
+
+.revision-planner-card {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 28%),
+    rgba(255, 255, 255, 0.96);
+}
+
+.grade-pill-light {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+.revision-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 18px 0 22px;
+}
+
+.revision-days {
+  display: grid;
+  gap: 12px;
+}
+
+.revision-day {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 18px;
+  align-items: start;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  background: #ffffff;
+}
+
+.revision-day span {
+  display: block;
+  color: #2563eb;
+  font-weight: 900;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.revision-day strong {
+  display: block;
+  margin-top: 4px;
+  color: #0f172a;
+}
+
+.revision-day p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.55;
+}
+
+.revision-day small {
+  grid-column: 2;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.exam-review-card {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.exam-review-card h3 {
+  margin-top: 0;
+}
+
+.detailed-breakdown span {
+  background: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .revision-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .revision-day {
+    grid-template-columns: 1fr;
+  }
+
+  .revision-day small {
+    grid-column: 1;
+  }
+}
