@@ -1098,3 +1098,33 @@ th {
     justify-content: flex-start;
   }
 }
+
+
+/* Phase 028: curriculum coverage */
+.curriculum-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.curriculum-strand {
+  padding: 20px;
+  border-radius: 22px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.curriculum-strand h3 {
+  margin-top: 0;
+}
+
+.topic-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.curriculum-year-card h3 {
+  font-size: 16px;
+  line-height: 1.5;
+}

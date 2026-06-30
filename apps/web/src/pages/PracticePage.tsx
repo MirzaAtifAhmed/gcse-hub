@@ -162,7 +162,10 @@ export function PracticePage() {
             <h1>Intelligent Practice</h1>
             <p>Practise by topic, skill, difficulty and question type. Choose All for a balanced mix.</p>
           </div>
-          <Link className="btn btn-secondary" to="/dashboard">Back to dashboard</Link>
+          <div className="nav-actions">
+            <Link className="btn btn-secondary" to="/curriculum">Curriculum map</Link>
+            <Link className="btn btn-secondary" to="/dashboard">Back to dashboard</Link>
+          </div>
         </div>
 
         <WeakTopicsPanel />

@@ -33,17 +33,17 @@ export interface IntelligentPracticeResult {
 }
 
 const TOPIC_ALIASES: Record<string, string[]> = {
-  algebra: ['algebra'],
+  algebra: ['algebra', 'quadratics', 'equations', 'sequences', 'factorising'],
   ratio: ['ratio', 'ratio and proportion', 'proportion'],
-  probability: ['probability'],
+  probability: ['probability', 'venn', 'tree'],
   fdp: ['fractions, decimals and percentages', 'fractions', 'percentages', 'decimals', 'fdp'],
   percentages: ['fractions, decimals and percentages', 'percentages'],
   area: ['area', 'geometry'],
   angles: ['angles', 'geometry'],
-  geometry: ['geometry', 'area', 'angles'],
-  measures: ['measures', 'speed'],
-  number: ['number', 'bounds'],
-  statistics: ['statistics', 'mean'],
+  geometry: ['geometry', 'area', 'angles', 'circle', 'volume', 'bearings', 'transformations', 'pythagoras'],
+  measures: ['measures', 'speed', 'units', 'volume'],
+  number: ['number', 'bounds', 'standard form', 'indices', 'surds'],
+  statistics: ['statistics', 'mean', 'averages', 'scatter', 'frequency'],
 };
 
 function normalise(value = '') {
