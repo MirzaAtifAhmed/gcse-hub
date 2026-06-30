@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { ExamAttempt } from '../models/ExamAttempt.js';
 import { markShortAnswer } from '../services/markingService.js';
+import { recordTopicMastery } from '../services/masteryService.js';
 
 const startSchema = z.object({ paper: z.any() });
 const answerSchema = z.object({ answer: z.string().default('') });
@@ -75,6 +76,16 @@ export async function submitExamAttempt(req: Request, res: Response) {
     answer.awardedMarks = result.awardedMarks;
     answer.totalMarks = question.marks;
     awardedMarks += result.awardedMarks;
+
+    if (req.user?.id && question.topic) {
+      await recordTopicMastery({
+        studentId: req.user.id,
+        topic: question.topic,
+        isCorrect: result.isCorrect,
+        awardedMarks: result.awardedMarks,
+        totalMarks: question.marks,
+      });
+    }
   }
 
   attempt.status = 'submitted';

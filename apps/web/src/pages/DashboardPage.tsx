@@ -15,6 +15,8 @@ import { useAuth } from '../features/auth/AuthContext';
 import { LearningPlanPanel } from '../components/LearningPlanPanel';
 import { RevisionPlannerPanel } from '../components/RevisionPlannerPanel';
 import { ExamReviewSummary } from '../components/ExamReviewSummary';
+import { InsightPanel } from '../components/InsightPanel';
+import { TutorHintBox } from '../components/TutorHintBox';
 import { QuestionDiagram } from '../components/questions/QuestionDiagram';
 import { api } from '../lib/api';
 
@@ -282,6 +284,9 @@ export function DashboardPage() {
                 </li>
               ))}
             </ol>
+            {isGeneratedQuestion(question) && !result.isCorrect && (
+              <TutorHintBox question={question} submittedAnswer={result.submittedAnswer} />
+            )}
           </div>
         )}
       </article>
@@ -338,6 +343,9 @@ export function DashboardPage() {
                 </li>
               ))}
             </ol>
+            {!submitted.isCorrect && (
+              <TutorHintBox question={question} submittedAnswer={submitted.submittedAnswer} />
+            )}
           </div>
         )}
       </article>
@@ -471,6 +479,8 @@ export function DashboardPage() {
         )}
 
         {renderReport()}
+
+        <InsightPanel role={user.role} />
 
         {!isParent && <LearningPlanPanel year={user.currentYear ?? 8} />}
         {!isParent && <RevisionPlannerPanel year={user.currentYear ?? 8} />}

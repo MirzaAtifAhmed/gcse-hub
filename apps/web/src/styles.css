@@ -940,3 +940,55 @@ th {
     grid-column: 1;
   }
 }
+
+/* 024-026 completion phases: insights, tutor hints and stronger GCSE practice */
+.insight-card {
+  background:
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 30%),
+    rgba(255, 255, 255, 0.96);
+}
+
+.insight-progress {
+  margin-top: 10px;
+}
+
+.insight-child-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px 18px;
+  align-items: start;
+}
+
+.insight-child-card p {
+  margin: 0;
+  color: #475569;
+}
+
+.tutor-hint-box {
+  margin-top: 14px;
+}
+
+.tutor-hint-card {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.tutor-hint-card h4 {
+  margin: 10px 0 8px;
+}
+
+.tutor-hint-card ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.tutor-hint-card li {
+  margin: 4px 0;
+  color: #334155;
+}
+
+@media (max-width: 900px) {
+  .insight-child-card {
+    grid-template-columns: 1fr;
+  }
+}
