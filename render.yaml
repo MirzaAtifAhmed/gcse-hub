@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: gcse-hub-api
+    env: node
+    plan: free
+    rootDir: .
+    buildCommand: yarn install --frozen-lockfile && yarn workspace @gcse-hub/api build
+    startCommand: yarn workspace @gcse-hub/api start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

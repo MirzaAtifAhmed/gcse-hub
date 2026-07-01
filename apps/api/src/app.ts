@@ -1,10 +1,14 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import mongoose from 'mongoose';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { ZodError } from 'zod';
 import { env } from './config/env.js';
+import { openApiDocument } from './docs/openApi.js';
+import { simpleRateLimit } from './middleware/rateLimit.js';
+import { logger } from './utils/logger.js';
 import { adminRoutes } from './routes/adminRoutes.js';
 import { adaptiveLearningRoutes } from './routes/adaptiveLearningRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
@@ -29,14 +33,34 @@ import { tutorRoutes } from './routes/tutorRoutes.js';
 
 export const app = express();
 
-app.use(helmet());
+app.set('trust proxy', 1);
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
-app.use(express.json());
+app.use(simpleRateLimit({ windowMs: 60_000, max: env.NODE_ENV === 'production' ? 120 : 500 }));
+app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.get('/api/health', (_req, res) => {
-  res.json({ success: true, message: 'GCSE Hub API is running' });
+  const databaseStates = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  const databaseState = databaseStates[mongoose.connection.readyState] ?? 'unknown';
+
+  res.json({
+    success: true,
+    status: 'ok',
+    service: 'gcse-hub-api',
+    version: process.env.npm_package_version ?? '1.0.0',
+    environment: env.NODE_ENV,
+    database: databaseState,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get('/api/docs', (_req, res) => {
+  res.json(openApiDocument);
 });
 
 app.use('/api/auth', authRoutes);
@@ -65,6 +89,11 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
     return res.status(400).json({ success: false, message: 'Validation error', errors: err.flatten() });
   }
 
-  console.error(err);
-  return res.status(500).json({ success: false, message: 'Internal server error' });
+  logger.error('Unhandled API error', err);
+
+  return res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    ...(env.NODE_ENV !== 'production' && err instanceof Error ? { error: err.message, stack: err.stack } : {}),
+  });
 });

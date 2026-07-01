@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "buildCommand": "yarn workspace @gcse-hub/web build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "yarn install --frozen-lockfile",
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

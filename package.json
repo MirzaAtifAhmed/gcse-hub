@@ -13,7 +13,13 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "yarn workspaces run typecheck",
-    "check": "yarn lint && yarn typecheck"
+    "check": "yarn lint && yarn typecheck",
+    "dev:api": "yarn workspace @gcse-hub/api dev",
+    "dev:web": "yarn workspace @gcse-hub/web dev",
+    "build:api": "yarn workspace @gcse-hub/api build",
+    "build:web": "yarn workspace @gcse-hub/web build",
+    "typecheck:api": "yarn workspace @gcse-hub/api typecheck",
+    "typecheck:web": "yarn workspace @gcse-hub/web typecheck"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -1383,3 +1383,14 @@ th {
     page-break-inside: avoid;
   }
 }
+
+/* Deployment phase status pages */
+.status-page-card {
+  max-width: 560px;
+  text-align: center;
+}
+
+.status-page-card .nav-links {
+  justify-content: center;
+  margin-top: 20px;
+}

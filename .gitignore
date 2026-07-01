@@ -1,30 +1,37 @@
 # dependencies
 node_modules/
+.pnp
+.pnp.js
 
-# pnpm
+# package managers
 .pnpm-store/
-
-# yarn
 .yarn/*
 !.yarn/releases
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
 
-# vite
-.vite/
-
-# build
+# build output
 dist/
 build/
 coverage/
+.vite/
+.turbo/
 
-# env
+# environment files - keep examples only
 .env
-.env.local
+.env.*
+!.env.example
 
 # logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# macOS
+# OS/editor
 .DS_Store
+.idea/
+.vscode/*
+!.vscode/launch.json
+!.vscode/extensions.json

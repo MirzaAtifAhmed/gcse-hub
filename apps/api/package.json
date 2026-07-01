@@ -9,7 +9,10 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",
-    "seed": "tsx src/seed/seedAdmin.ts"
+    "seed": "tsx src/seed/seedAdmin.ts",
+    "dev:debug": "node --inspect=9229 --enable-source-maps --import tsx src/server.ts",
+    "debug": "node --inspect-brk=9229 --enable-source-maps --import tsx src/server.ts",
+    "start:debug": "node --inspect-brk=9229 dist/server.js"
   },
   "dependencies": {
     "@gcse-hub/shared": "0.1.0",

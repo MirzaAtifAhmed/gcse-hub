@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="GCSE Hub">
+  <rect width="512" height="512" rx="112" fill="#2563eb"/>
+  <path d="M126 166c0-24 20-44 44-44h172c24 0 44 20 44 44v180c0 24-20 44-44 44H170c-24 0-44-20-44-44V166Z" fill="#ffffff" opacity="0.95"/>
+  <path d="M176 198h160M176 250h160M176 302h104" stroke="#2563eb" stroke-width="30" stroke-linecap="round"/>
+</svg>

@@ -1,37 +1,83 @@
-# 021 Adaptive Learning Plan
+# GCSE Hub
 
-Apply this patch after `020-gcse-exam-engine-upgrade-fixed.zip`.
+GCSE Hub is a monorepo for an adaptive GCSE learning platform with a React/Vite frontend, Express API, shared packages and MongoDB persistence.
 
-## What it adds
+## Tech stack
 
-- `/api/learning-plan/me` student endpoint.
-- Adaptive GCSE learning-plan service based on topic mastery and submitted exams.
-- Student dashboard learning plan panel.
-- Estimated grade band, weekly goals, next actions, weak topics and strengths.
-- Styling for the new learning-plan UI.
+- Yarn workspaces
+- React + Vite frontend: `apps/web`
+- Node + Express API: `apps/api`
+- MongoDB + Mongoose
+- TypeScript shared packages: `packages/types`, `packages/shared`
 
-## Files changed
-
-- `apps/api/src/app.ts`
-- `apps/api/src/services/learningPlanService.ts`
-- `apps/api/src/controllers/learningPlanController.ts`
-- `apps/api/src/routes/learningPlanRoutes.ts`
-- `apps/web/src/components/LearningPlanPanel.tsx`
-- `apps/web/src/pages/DashboardPage.tsx`
-- `apps/web/src/styles.css`
-
-## After applying
-
-Run:
+## Local setup
 
 ```bash
-npm run typecheck
-npm run build
+yarn install
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
 ```
 
-If your workspace uses Yarn locally:
+Edit `apps/api/.env`:
+
+```env
+NODE_ENV=development
+PORT=4004
+MONGODB_URI=mongodb://127.0.0.1:27017/gcse-hub
+JWT_SECRET=gcse-hub-local-development-secret
+CLIENT_URL=http://localhost:5173
+```
+
+Start MongoDB locally, then run:
+
+```bash
+yarn dev
+```
+
+Frontend: http://localhost:5173  
+API: http://localhost:4004/api/health
+
+## Common commands
 
 ```bash
 yarn typecheck
 yarn build
+yarn lint
+yarn workspace @gcse-hub/api seed
 ```
+
+## Deployment
+
+Recommended deployment stack:
+
+- Frontend: Vercel
+- Backend: Render
+- Database: MongoDB Atlas
+- Code: GitHub
+
+See [`docs/deployment/Production.md`](docs/deployment/Production.md).
+
+## Environment files
+
+Real `.env` files are ignored by Git. Commit only `.env.example` files.
+
+Required API production variables:
+
+```env
+NODE_ENV=production
+MONGODB_URI=<MongoDB Atlas URI>
+JWT_SECRET=<long random secret>
+CLIENT_URL=<Vercel frontend URL>
+```
+
+Required web production variable:
+
+```env
+VITE_API_URL=<Render API URL>/api
+```
+
+## Production checks
+
+- API health: `/api/health`
+- API docs: `/api/docs`
+- Web PWA manifest: `/manifest.webmanifest`

@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuth } from './features/auth/AuthContext';
 import { AdminPage } from './pages/AdminPage';
@@ -6,6 +7,8 @@ import { DashboardPage } from './pages/DashboardPage';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { OfflinePage } from './pages/OfflinePage';
+import { MaintenancePage } from './pages/MaintenancePage';
 import { PracticePage } from './pages/PracticePage';
 import { CurriculumPage } from './pages/CurriculumPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -27,6 +30,7 @@ function DashboardRedirect() {
 
 export function App() {
   return (
+    <ErrorBoundary>
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -40,7 +44,10 @@ export function App() {
       <Route path="/worksheets" element={<ProtectedRoute><WorksheetBuilderPage /></ProtectedRoute>} />
       <Route path="/subjects" element={<ProtectedRoute><SubjectExpansionPage /></ProtectedRoute>} />
 
+      <Route path="/offline" element={<OfflinePage />} />
+      <Route path="/maintenance" element={<MaintenancePage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </ErrorBoundary>
   );
 }
