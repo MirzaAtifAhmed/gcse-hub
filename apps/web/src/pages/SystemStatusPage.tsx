@@ -37,6 +37,7 @@ function formatDate(value?: string) {
 }
 
 function isMongoConnected(data: MongoHealthResponse | null) {
+  console.log('data', data)
   if (!data) {
     return false;
   }
