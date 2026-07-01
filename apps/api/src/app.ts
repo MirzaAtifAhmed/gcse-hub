@@ -44,19 +44,66 @@ app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-app.get('/api/health', (_req, res) => {
+function getDatabaseState() {
   const databaseStates = ['disconnected', 'connected', 'connecting', 'disconnecting'];
-  const databaseState = databaseStates[mongoose.connection.readyState] ?? 'unknown';
+  return databaseStates[mongoose.connection.readyState] ?? 'unknown';
+}
 
-  res.json({
-    success: true,
-    status: 'ok',
+app.get('/api/health', (_req, res) => {
+  const databaseState = getDatabaseState();
+
+  res.status(databaseState === 'connected' ? 200 : 503).json({
+    success: databaseState === 'connected',
+    status: databaseState === 'connected' ? 'ok' : 'degraded',
     service: 'gcse-hub-api',
     version: process.env.npm_package_version ?? '1.0.0',
     environment: env.NODE_ENV,
     database: databaseState,
     timestamp: new Date().toISOString(),
   });
+});
+
+app.get('/api/health/mongo', async (_req, res) => {
+  const databaseState = getDatabaseState();
+
+  try {
+    if (!mongoose.connection.db) {
+      return res.status(503).json({
+        success: false,
+        status: 'degraded',
+        service: 'gcse-hub-api',
+        database: databaseState,
+        mongoPing: false,
+        message: 'MongoDB connection has not been established yet.',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    await mongoose.connection.db.admin().ping();
+
+    return res.json({
+      success: true,
+      status: 'ok',
+      service: 'gcse-hub-api',
+      database: databaseState,
+      mongoPing: true,
+      databaseName: mongoose.connection.name,
+      host: mongoose.connection.host,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    logger.error('MongoDB health check failed', error);
+
+    return res.status(503).json({
+      success: false,
+      status: 'degraded',
+      service: 'gcse-hub-api',
+      database: databaseState,
+      mongoPing: false,
+      message: error instanceof Error ? error.message : 'MongoDB ping failed',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 app.get('/api/docs', (_req, res) => {

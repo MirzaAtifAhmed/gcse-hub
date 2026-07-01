@@ -1394,3 +1394,89 @@ th {
   justify-content: center;
   margin-top: 20px;
 }
+
+/* System status / deployment verification page */
+.system-status-card {
+  max-width: 760px;
+  text-align: left;
+}
+
+.system-status-card h1 {
+  text-align: center;
+}
+
+.system-status-card > p {
+  text-align: center;
+}
+
+.system-status-banner {
+  display: grid;
+  gap: 6px;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 22px 0;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+}
+
+.system-status-banner span {
+  color: #475569;
+  font-size: 14px;
+}
+
+.system-status-online {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.system-status-degraded,
+.system-status-offline {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.system-status-loading,
+.system-status-idle {
+  background: #dbeafe;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.system-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.system-status-grid div {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px;
+  background: #ffffff;
+  min-width: 0;
+}
+
+.system-status-grid dt {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.system-status-grid dd {
+  margin: 0;
+  font-weight: 800;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .system-status-grid {
+    grid-template-columns: 1fr;
+  }
+}

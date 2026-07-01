@@ -16,6 +16,7 @@ import { DiagnosticPage } from './pages/DiagnosticPage';
 import { SubjectExpansionPage } from './pages/SubjectExpansionPage';
 import { TeacherWorkspacePage } from './pages/TeacherWorkspacePage';
 import { WorksheetBuilderPage } from './pages/WorksheetBuilderPage';
+import { SystemStatusPage } from './pages/SystemStatusPage';
 
 
 function DashboardRedirect() {
@@ -43,6 +44,8 @@ export function App() {
       <Route path="/teacher" element={<ProtectedRoute roles={['admin']}><TeacherWorkspacePage /></ProtectedRoute>} />
       <Route path="/worksheets" element={<ProtectedRoute><WorksheetBuilderPage /></ProtectedRoute>} />
       <Route path="/subjects" element={<ProtectedRoute><SubjectExpansionPage /></ProtectedRoute>} />
+      <Route path="/status" element={<SystemStatusPage />} />
+      <Route path="/system-status" element={<SystemStatusPage />} />
 
       <Route path="/offline" element={<OfflinePage />} />
       <Route path="/maintenance" element={<MaintenancePage />} />
