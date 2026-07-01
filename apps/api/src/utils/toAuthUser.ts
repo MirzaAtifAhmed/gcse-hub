@@ -8,5 +8,11 @@ export function toAuthUser(user: UserDocument): AuthUser {
     email: user.email,
     role: user.role as AuthUser['role'],
     currentYear: user.currentYear ?? undefined,
+    target: user.target ?? undefined,
+    currentLevel: user.currentLevel ?? undefined,
+    targetGrade: user.targetGrade ?? undefined,
+    examBoard: user.examBoard ?? undefined,
+    studyGoalMinutesPerDay: user.studyGoalMinutesPerDay ?? undefined,
+    learningPreferences: user.learningPreferences ?? [],
   };
 }

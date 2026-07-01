@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import { ZodError } from 'zod';
 import { env } from './config/env.js';
 import { adminRoutes } from './routes/adminRoutes.js';
+import { adaptiveLearningRoutes } from './routes/adaptiveLearningRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { childrenRoutes } from './routes/childrenRoutes.js';
 import { curriculumRoutes } from './routes/curriculumRoutes.js';
@@ -14,6 +15,7 @@ import { examRoutes } from './routes/examRoutes.js';
 import { insightRoutes } from './routes/insightRoutes.js';
 import { learningPlanRoutes } from './routes/learningPlanRoutes.js';
 import { masteryRoutes } from './routes/masteryRoutes.js';
+import { profileRoutes } from './routes/profileRoutes.js';
 import { questionRoutes } from './routes/questionRoutes.js';
 import { reportRoutes } from './routes/reportRoutes.js';
 import { revisionPlannerRoutes } from './routes/revisionPlannerRoutes.js';
@@ -44,7 +46,9 @@ app.use('/api/insights', insightRoutes);
 app.use('/api/topic-coverage', topicCoverageRoutes);
 app.use('/api/tutor', tutorRoutes);
 app.use('/api/mastery', masteryRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/learning-plan', learningPlanRoutes);
+app.use('/api/adaptive-learning', adaptiveLearningRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

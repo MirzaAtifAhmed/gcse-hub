@@ -19,6 +19,12 @@ export function toAuthUser(user: UserDocument): AuthUser {
     email: user.email,
     role: user.role as AuthUser['role'],
     currentYear: user.currentYear ?? undefined,
+    target: user.target ?? undefined,
+    currentLevel: user.currentLevel ?? undefined,
+    targetGrade: user.targetGrade ?? undefined,
+    examBoard: user.examBoard ?? undefined,
+    studyGoalMinutesPerDay: user.studyGoalMinutesPerDay ?? undefined,
+    learningPreferences: user.learningPreferences ?? [],
   };
 }
 
@@ -29,6 +35,11 @@ export function toChildProfile(user: UserDocument): ChildProfile {
     email: user.email,
     currentYear: user.currentYear ?? 7,
     target: (user.target ?? 'undecided') as ChildProfile['target'],
+    currentLevel: user.currentLevel ?? undefined,
+    targetGrade: user.targetGrade ?? undefined,
+    examBoard: user.examBoard ?? undefined,
+    studyGoalMinutesPerDay: user.studyGoalMinutesPerDay ?? undefined,
+    learningPreferences: user.learningPreferences ?? [],
     createdAt: user.createdAt?.toISOString(),
   };
 }

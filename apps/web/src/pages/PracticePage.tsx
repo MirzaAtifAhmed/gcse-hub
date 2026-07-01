@@ -1,6 +1,6 @@
 import type { GeneratedQuestion, PracticeAnswerResult } from '@gcse-hub/types';
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { QuestionCard } from '../components/QuestionCard';
 import { WeakTopicsPanel } from '../components/WeakTopicsPanel';
 import { useAuth } from '../features/auth/AuthContext';
@@ -82,6 +82,7 @@ function optionLabel(options: Option[], value: string) {
 
 export function PracticePage() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
   const [results, setResults] = useState<Record<string, PracticeAnswerResult>>({});
   const [builderOptions, setBuilderOptions] = useState<BuilderOptions>(DEFAULT_OPTIONS);
@@ -97,6 +98,23 @@ export function PracticePage() {
   const [mode, setMode] = useState('practice');
   const [count, setCount] = useState('10');
   const [timed, setTimed] = useState('untimed');
+
+
+  useEffect(() => {
+    const topicParam = searchParams.get('topic');
+    const difficultyParam = searchParams.get('difficulty');
+    const questionTypeParam = searchParams.get('questionType');
+    const questionStyleParam = searchParams.get('questionStyle');
+    const modeParam = searchParams.get('mode');
+    const countParam = searchParams.get('count');
+
+    if (topicParam) setTopic(topicParam);
+    if (difficultyParam) setDifficulty(difficultyParam);
+    if (questionTypeParam) setQuestionType(questionTypeParam);
+    if (questionStyleParam) setQuestionStyle(questionStyleParam);
+    if (modeParam) setMode(modeParam);
+    if (countParam) setCount(countParam);
+  }, [searchParams]);
 
   useEffect(() => {
     api.get('/questions/practice-builder-options')

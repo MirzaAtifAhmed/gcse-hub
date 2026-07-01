@@ -1,6 +1,8 @@
 export type UserRole = 'student' | 'parent' | 'admin';
 export type KeyStage = 'KS3' | 'KS4';
 export type GcseTarget = 'foundation' | 'higher' | 'undecided';
+export type ExamBoardPreference = 'aqa' | 'edexcel' | 'ocr' | 'mixed';
+export type LearningPreference = 'worked-examples' | 'diagrams' | 'exam-questions' | 'short-sessions';
 export type QuestionType = 'short-answer' | 'multiple-choice' | 'worked';
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 export type ExamAttemptStatus = 'in-progress' | 'submitted';
@@ -11,6 +13,12 @@ export interface AuthUser {
   email: string;
   role: UserRole;
   currentYear?: number;
+  target?: GcseTarget;
+  currentLevel?: number;
+  targetGrade?: number;
+  examBoard?: ExamBoardPreference;
+  studyGoalMinutesPerDay?: number;
+  learningPreferences?: LearningPreference[];
 }
 
 export interface ApiResponse<T> {
@@ -54,7 +62,28 @@ export interface ChildProfile {
   email: string;
   currentYear: number;
   target: GcseTarget;
+  currentLevel?: number;
+  targetGrade?: number;
+  examBoard?: ExamBoardPreference;
+  studyGoalMinutesPerDay?: number;
+  learningPreferences?: LearningPreference[];
   createdAt?: string;
+}
+
+export interface ProfileSettings {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  firstName: string;
+  surname: string;
+  currentYear?: number;
+  target?: GcseTarget;
+  currentLevel?: number;
+  targetGrade?: number;
+  examBoard?: ExamBoardPreference;
+  studyGoalMinutesPerDay?: number;
+  learningPreferences?: LearningPreference[];
 }
 
 export interface WorkedSolutionStep {

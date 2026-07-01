@@ -18,6 +18,8 @@ import { ExamReviewSummary } from '../components/ExamReviewSummary';
 import { InsightPanel } from '../components/InsightPanel';
 import { TutorHintBox } from '../components/TutorHintBox';
 import { QuestionDiagram } from '../components/questions/QuestionDiagram';
+import { AdaptiveLearningPanel } from '../components/AdaptiveLearningPanel';
+import { ProfileSettingsPanel } from '../components/ProfileSettingsPanel';
 import { api } from '../lib/api';
 
 type PracticeQuestion = QuestionTemplate | GeneratedQuestion;
@@ -146,6 +148,29 @@ export function DashboardPage() {
     const nextYear = Math.min(11, child.currentYear + 1);
     await api.patch(`/children/${child.id}/promote`, { currentYear: nextYear });
     await loadDashboard();
+  }
+
+  async function updateChildLearningProfile(event: FormEvent<HTMLFormElement>, childId: string) {
+    event.preventDefault();
+    setMessage('');
+    setChildError('');
+
+    const form = new FormData(event.currentTarget);
+
+    try {
+      await api.patch(`/children/${childId}/profile`, {
+        currentYear: Number(form.get('currentYear')),
+        currentLevel: Number(form.get('currentLevel')),
+        target: String(form.get('target')),
+        targetGrade: Number(form.get('targetGrade')),
+        examBoard: String(form.get('examBoard')),
+        studyGoalMinutesPerDay: Number(form.get('studyGoalMinutesPerDay')),
+      });
+      setMessage('Child learning profile updated.');
+      await loadDashboard();
+    } catch {
+      setChildError('Could not update child learning profile.');
+    }
   }
 
   async function submitPracticeAnswer(event: FormEvent<HTMLFormElement>, question: PracticeQuestion) {
@@ -457,8 +482,65 @@ export function DashboardPage() {
                     <h3>{child.name}</h3>
                     <p>{child.email}</p>
                     <p>
-                      Year {child.currentYear} · Target: {child.target}
+                      Year {child.currentYear} · Target: {child.target} · Working level: Year{' '}
+                      {child.currentLevel ?? child.currentYear}
                     </p>
+                    <form
+                      className="child-profile-form"
+                      onSubmit={(event) => updateChildLearningProfile(event, child.id)}
+                    >
+                      <div className="field">
+                        <label>Year</label>
+                        <select name="currentYear" defaultValue={child.currentYear}>
+                          {[7, 8, 9, 10, 11].map((year) => (
+                            <option value={year} key={year}>Year {year}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="field">
+                        <label>Working level</label>
+                        <select name="currentLevel" defaultValue={child.currentLevel ?? child.currentYear}>
+                          {[7, 8, 9, 10, 11].map((year) => (
+                            <option value={year} key={year}>Year {year}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="field">
+                        <label>Tier</label>
+                        <select name="target" defaultValue={child.target ?? 'undecided'}>
+                          <option value="undecided">Undecided</option>
+                          <option value="foundation">Foundation</option>
+                          <option value="higher">Higher</option>
+                        </select>
+                      </div>
+                      <div className="field">
+                        <label>Target grade</label>
+                        <select name="targetGrade" defaultValue={child.targetGrade ?? 5}>
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((grade) => (
+                            <option value={grade} key={grade}>Grade {grade}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="field">
+                        <label>Exam board</label>
+                        <select name="examBoard" defaultValue={child.examBoard ?? 'mixed'}>
+                          <option value="mixed">Mixed</option>
+                          <option value="aqa">AQA</option>
+                          <option value="edexcel">Edexcel</option>
+                          <option value="ocr">OCR</option>
+                        </select>
+                      </div>
+                      <div className="field">
+                        <label>Daily goal</label>
+                        <select name="studyGoalMinutesPerDay" defaultValue={child.studyGoalMinutesPerDay ?? 30}>
+                          <option value="15">15 mins</option>
+                          <option value="30">30 mins</option>
+                          <option value="45">45 mins</option>
+                          <option value="60">60 mins</option>
+                        </select>
+                      </div>
+                      <button className="btn btn-secondary" type="submit">Save profile</button>
+                    </form>
                     <div className="nav-links">
                       <button
                         className="btn btn-secondary"
@@ -480,8 +562,11 @@ export function DashboardPage() {
 
         {renderReport()}
 
+        <ProfileSettingsPanel onSaved={loadDashboard} />
+
         <InsightPanel role={user.role} />
 
+        {!isParent && <AdaptiveLearningPanel />}
         {!isParent && <LearningPlanPanel year={user.currentYear ?? 8} />}
         {!isParent && <RevisionPlannerPanel year={user.currentYear ?? 8} />}
 
