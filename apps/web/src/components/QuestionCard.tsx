@@ -1,18 +1,42 @@
-import type { GeneratedQuestion } from '@gcse-hub/types';
+import type { GeneratedQuestion, PracticeAnswerResult } from '@gcse-hub/types';
 import { isAnswerCorrect } from '@gcse-hub/shared';
 import { type FormEvent, useState } from 'react';
 import { SolutionPanel } from './SolutionPanel';
 import { QuestionDiagram } from './questions/QuestionDiagram';
 
-export function QuestionCard({ question, index }: { question: GeneratedQuestion; index?: number }) {
+type QuestionCardProps = {
+  question: GeneratedQuestion;
+  index?: number;
+  onAnswerChecked?: (question: GeneratedQuestion, answer: string, isCorrect: boolean) => Promise<PracticeAnswerResult | void> | PracticeAnswerResult | void;
+};
+
+export function QuestionCard({ question, index, onAnswerChecked }: QuestionCardProps) {
   const [submittedAnswer, setSubmittedAnswer] = useState('');
   const [checked, setChecked] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    setSubmittedAnswer(String(form.get('answer')));
+    const answer = String(form.get('answer') ?? '').trim();
+    const correct = isAnswerCorrect(answer, question.answer);
+
+    setSubmittedAnswer(answer);
     setChecked(true);
+    setSaveMessage('');
+
+    if (onAnswerChecked) {
+      setIsSaving(true);
+      try {
+        await onAnswerChecked(question, answer, correct);
+        setSaveMessage('Progress saved automatically.');
+      } catch {
+        setSaveMessage('Answer checked, but progress could not be saved.');
+      } finally {
+        setIsSaving(false);
+      }
+    }
   }
 
   const isCorrect = isAnswerCorrect(submittedAnswer, question.answer);
@@ -44,10 +68,12 @@ export function QuestionCard({ question, index }: { question: GeneratedQuestion;
         ) : (
           <input name="answer" placeholder="Type your answer" required />
         )}
-        <button className="btn btn-primary" type="submit">
-          Check answer
+        <button className="btn btn-primary" type="submit" disabled={isSaving}>
+          {isSaving ? 'Saving…' : 'Check answer'}
         </button>
       </form>
+
+      {saveMessage && <p className="small-muted">{saveMessage}</p>}
 
       {checked && (
         <div className={isCorrect ? 'success-box' : 'error-box'}>
