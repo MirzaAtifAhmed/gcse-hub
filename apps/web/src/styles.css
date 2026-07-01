@@ -1321,3 +1321,65 @@ th {
     grid-template-columns: 1fr;
   }
 }
+
+/* Phase 031-034: diagnostics, teacher tools, worksheets, subject rollout */
+.diagnostic-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 10px 0;
+}
+
+.compact-field {
+  max-width: 260px;
+}
+
+.printable-page .worksheet-preview {
+  background: #ffffff;
+}
+
+.print-question {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 18px 0;
+}
+
+.answer-lines {
+  min-height: 70px;
+  margin-top: 16px;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 27px,
+    #e2e8f0 28px
+  );
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+
+  .no-print,
+  .navbar,
+  .nav-links,
+  .btn {
+    display: none !important;
+  }
+
+  .page,
+  .container,
+  .card,
+  .section {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  .print-question {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

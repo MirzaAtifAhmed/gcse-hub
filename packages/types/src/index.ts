@@ -271,3 +271,84 @@ export interface DashboardSummary {
     examsCompleted: number;
   };
 }
+
+export type DiagnosticConfidence = 'low' | 'medium' | 'high';
+export type LearningPathStatus = 'not-started' | 'in-progress' | 'mastered';
+export type HomeworkStatus = 'draft' | 'assigned' | 'closed';
+export type WorksheetFormat = 'worksheet' | 'mark-scheme' | 'both';
+
+export interface DiagnosticAssessmentSummary {
+  id: string;
+  studentId: string;
+  year: number;
+  estimatedGrade: number;
+  currentLevel: number;
+  suggestedTarget: GcseTarget;
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+  questions: GeneratedQuestion[];
+  createdAt: string;
+}
+
+export interface DiagnosticAnswerInput {
+  questionId: string;
+  answer: string;
+  confidence?: DiagnosticConfidence;
+}
+
+export interface LearningPathStep {
+  id: string;
+  title: string;
+  topic: string;
+  skill: string;
+  estimatedMinutes: number;
+  status: LearningPathStatus;
+  recommendedMode: 'learn' | 'practice' | 'test' | 'review';
+}
+
+export interface TeacherClassSummary {
+  id: string;
+  name: string;
+  year: number;
+  studentCount: number;
+  averageAccuracy: number;
+  weakestTopics: string[];
+}
+
+export interface HomeworkAssignmentSummary {
+  id: string;
+  title: string;
+  topic: string;
+  year: number;
+  questionCount: number;
+  dueDate?: string;
+  status: HomeworkStatus;
+  completionPercentage: number;
+}
+
+export interface WorksheetQuestion {
+  number: number;
+  question: GeneratedQuestion;
+}
+
+export interface WorksheetPack {
+  id: string;
+  title: string;
+  subject: string;
+  year: number;
+  topic: string;
+  format: WorksheetFormat;
+  questions: WorksheetQuestion[];
+  totalMarks: number;
+  estimatedMinutes: number;
+  generatedAt: string;
+}
+
+export interface SubjectLaunchSummary {
+  subject: 'Mathematics' | 'English' | 'Science';
+  status: 'ready' | 'starter' | 'planned';
+  years: number[];
+  strands: string[];
+  sampleTopics: string[];
+}

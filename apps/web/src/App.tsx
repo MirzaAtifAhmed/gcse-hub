@@ -9,6 +9,11 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { PracticePage } from './pages/PracticePage';
 import { CurriculumPage } from './pages/CurriculumPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { DiagnosticPage } from './pages/DiagnosticPage';
+import { SubjectExpansionPage } from './pages/SubjectExpansionPage';
+import { TeacherWorkspacePage } from './pages/TeacherWorkspacePage';
+import { WorksheetBuilderPage } from './pages/WorksheetBuilderPage';
+
 
 function DashboardRedirect() {
   const { user } = useAuth();
@@ -30,6 +35,11 @@ export function App() {
       <Route path="/practice" element={<ProtectedRoute roles={['student']}><PracticePage /></ProtectedRoute>} />
       <Route path="/curriculum" element={<ProtectedRoute><CurriculumPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute roles={['admin']}><AdminPage /></ProtectedRoute>} />
+      <Route path="/diagnostic" element={<ProtectedRoute roles={['student']}><DiagnosticPage /></ProtectedRoute>} />
+      <Route path="/teacher" element={<ProtectedRoute roles={['admin']}><TeacherWorkspacePage /></ProtectedRoute>} />
+      <Route path="/worksheets" element={<ProtectedRoute><WorksheetBuilderPage /></ProtectedRoute>} />
+      <Route path="/subjects" element={<ProtectedRoute><SubjectExpansionPage /></ProtectedRoute>} />
+
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

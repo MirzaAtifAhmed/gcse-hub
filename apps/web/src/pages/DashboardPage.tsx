@@ -11,6 +11,7 @@ import type {
 } from '@gcse-hub/types';
 import { isAnswerCorrect } from '@gcse-hub/shared';
 import { type FormEvent, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
 import { LearningPlanPanel } from '../components/LearningPlanPanel';
 import { RevisionPlannerPanel } from '../components/RevisionPlannerPanel';
@@ -567,6 +568,21 @@ export function DashboardPage() {
         <InsightPanel role={user.role} />
 
         {!isParent && <AdaptiveLearningPanel />}
+        {!isParent && (
+          <section className="card section">
+            <div className="dashboard-header">
+              <div>
+                <h2>Next learning tools</h2>
+                <p>Use diagnostics, worksheets and subject starters to plan the next study step.</p>
+              </div>
+              <div className="nav-links">
+                <Link className="btn btn-secondary" to="/diagnostic">Diagnostic</Link>
+                <Link className="btn btn-secondary" to="/worksheets">Worksheets</Link>
+                <Link className="btn btn-secondary" to="/subjects">English & Science</Link>
+              </div>
+            </div>
+          </section>
+        )}
         {!isParent && <LearningPlanPanel year={user.currentYear ?? 8} />}
         {!isParent && <RevisionPlannerPanel year={user.currentYear ?? 8} />}
 

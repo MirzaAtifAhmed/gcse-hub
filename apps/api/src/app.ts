@@ -11,6 +11,11 @@ import { authRoutes } from './routes/authRoutes.js';
 import { childrenRoutes } from './routes/childrenRoutes.js';
 import { curriculumRoutes } from './routes/curriculumRoutes.js';
 import { dashboardRoutes } from './routes/dashboardRoutes.js';
+import { diagnosticAssessmentRoutes } from './routes/diagnosticAssessmentRoutes.js';
+import { subjectExpansionRoutes } from './routes/subjectExpansionRoutes.js';
+import { teacherWorkspaceRoutes } from './routes/teacherWorkspaceRoutes.js';
+import { worksheetRoutes } from './routes/worksheetRoutes.js';
+
 import { examRoutes } from './routes/examRoutes.js';
 import { insightRoutes } from './routes/insightRoutes.js';
 import { learningPlanRoutes } from './routes/learningPlanRoutes.js';
@@ -50,6 +55,10 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/learning-plan', learningPlanRoutes);
 app.use('/api/adaptive-learning', adaptiveLearningRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/diagnostic-assessment', diagnosticAssessmentRoutes);
+app.use('/api/teacher-workspace', teacherWorkspaceRoutes);
+app.use('/api/worksheets', worksheetRoutes);
+app.use('/api/subject-expansion', subjectExpansionRoutes);
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err instanceof ZodError) {
