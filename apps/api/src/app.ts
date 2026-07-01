@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import { ZodError } from 'zod';
 import { env } from './config/env.js';
 import { openApiDocument } from './docs/openApi.js';
@@ -18,8 +19,6 @@ import { diagnosticAssessmentRoutes } from './routes/diagnosticAssessmentRoutes.
 import { subjectExpansionRoutes } from './routes/subjectExpansionRoutes.js';
 import { teacherWorkspaceRoutes } from './routes/teacherWorkspaceRoutes.js';
 import { worksheetRoutes } from './routes/worksheetRoutes.js';
-import { healthRoutes } from './routes/healthRoutes.js';
-
 import { examRoutes } from './routes/examRoutes.js';
 import { insightRoutes } from './routes/insightRoutes.js';
 import { learningPlanRoutes } from './routes/learningPlanRoutes.js';
@@ -44,8 +43,103 @@ app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-app.use(healthRoutes);
-app.use('/api', healthRoutes);
+
+function getMongoHealth() {
+  const readyStateLabels: Record<number, string> = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+  const readyState = mongoose.connection.readyState;
+  const connected = readyState === 1;
+
+  return {
+    connected,
+    readyState,
+    state: readyStateLabels[readyState] ?? 'unknown',
+    databaseName: mongoose.connection.name || null,
+    host: mongoose.connection.host || null,
+  };
+}
+
+app.get(['/health', '/api/health'], (_req, res) => {
+  const mongo = getMongoHealth();
+
+  return res.status(200).json({
+    success: true,
+    status: mongo.connected ? 'ok' : 'degraded',
+    service: 'gcse-hub-api',
+    environment: env.NODE_ENV,
+    mongodb: mongo.state,
+    mongo,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get(['/health/db', '/health/mongo', '/api/health/db', '/api/health/mongo'], async (_req, res) => {
+  const mongo = getMongoHealth();
+
+  try {
+    if (!mongoose.connection.db) {
+      return res.status(503).json({
+        success: false,
+        status: 'degraded',
+        service: 'gcse-hub-api',
+        database: mongo.state,
+        mongoPing: false,
+        mongo,
+        message: 'MongoDB connection has not been established yet.',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    await mongoose.connection.db.admin().ping();
+
+    return res.status(200).json({
+      success: true,
+      status: 'ok',
+      service: 'gcse-hub-api',
+      database: mongo.state,
+      mongoPing: true,
+      readyState: mongo.readyState,
+      databaseName: mongo.databaseName,
+      host: mongo.host,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    logger.error('MongoDB health check failed', error);
+
+    return res.status(503).json({
+      success: false,
+      status: 'degraded',
+      service: 'gcse-hub-api',
+      database: mongo.state,
+      mongoPing: false,
+      readyState: mongo.readyState,
+      message: error instanceof Error ? error.message : 'MongoDB ping failed',
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+app.get(['/health/full', '/api/health/full'], (_req, res) => {
+  const mongo = getMongoHealth();
+
+  return res.status(mongo.connected ? 200 : 503).json({
+    success: mongo.connected,
+    api: 'ok',
+    mongodb: mongo.connected ? 'ok' : 'failed',
+    service: 'gcse-hub-api',
+    node: process.version,
+    environment: env.NODE_ENV,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    mongo,
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.get('/api/docs', (_req, res) => {
   res.json(openApiDocument);

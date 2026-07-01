@@ -9,6 +9,8 @@ type HealthResponse = {
   version?: string;
   environment?: string;
   database?: string;
+  mongodb?: string;
+  mongo?: { connected: boolean; readyState: number; state: string; databaseName?: string | null; host?: string | null };
   mongoPing?: boolean;
   databaseName?: string;
   host?: string;
@@ -44,17 +46,21 @@ export function SystemStatusPage() {
     setError('');
 
     try {
-      const res = await api.get<HealthResponse>('/health/mongo', {
+      const res = await api.get<HealthResponse>('/health', {
         timeout: 12_000,
         validateStatus: () => true,
       });
 
       setHealth(res.data);
 
-      if (res.status >= 200 && res.status < 300 && res.data.success && res.data.mongoPing) {
+      const mongoConnected = res.data.mongo?.connected || res.data.mongoPing || res.data.mongodb === 'connected';
+
+      if (res.status >= 200 && res.status < 300 && res.data.success && mongoConnected) {
         setState('online');
-      } else {
+      } else if (res.status >= 200 && res.status < 500) {
         setState('degraded');
+      } else {
+        setState('offline');
       }
     } catch (err) {
       setHealth(null);
@@ -108,19 +114,19 @@ export function SystemStatusPage() {
           </div>
           <div>
             <dt>MongoDB state</dt>
-            <dd>{health?.database ?? '-'}</dd>
+            <dd>{health?.database ?? health?.mongodb ?? health?.mongo?.state ?? '-'}</dd>
           </div>
           <div>
             <dt>MongoDB ping</dt>
-            <dd>{health?.mongoPing ? 'Passed' : health ? 'Failed' : '-'}</dd>
+            <dd>{health?.mongoPing || health?.mongo?.connected ? 'Passed' : health ? 'Failed' : '-'}</dd>
           </div>
           <div>
             <dt>Database</dt>
-            <dd>{health?.databaseName ?? '-'}</dd>
+            <dd>{health?.databaseName ?? health?.mongo?.databaseName ?? '-'}</dd>
           </div>
           <div>
             <dt>Host</dt>
-            <dd>{health?.host ?? '-'}</dd>
+            <dd>{health?.host ?? health?.mongo?.host ?? '-'}</dd>
           </div>
           <div>
             <dt>Checked at</dt>
