@@ -28,6 +28,7 @@ type PracticeSummary = {
 };
 
 type SimpleMode = 'practice' | 'topic-test';
+type SimpleDifficulty = 'adaptive' | '1' | '2' | '3' | '4' | '5';
 
 type TestSubmission = {
   questionId: string;
@@ -89,6 +90,7 @@ export function PracticePage() {
   const [mode, setMode] = useState<SimpleMode>('practice');
   const [topic, setTopic] = useState('all');
   const [count, setCount] = useState('recommended');
+  const [difficulty, setDifficulty] = useState<SimpleDifficulty>('adaptive');
 
   const year = user?.currentYear ?? 8;
 
@@ -96,10 +98,12 @@ export function PracticePage() {
     const topicParam = searchParams.get('topic');
     const modeParam = searchParams.get('mode');
     const countParam = searchParams.get('count');
+    const difficultyParam = searchParams.get('difficulty') as SimpleDifficulty | null;
 
     if (topicParam) setTopic(topicParam);
     if (modeParam === 'practice' || modeParam === 'topic-test') setMode(modeParam);
     if (countParam) setCount(countParam);
+    if (difficultyParam && ['adaptive', '1', '2', '3', '4', '5'].includes(difficultyParam)) setDifficulty(difficultyParam);
   }, [searchParams]);
 
   useEffect(() => {
@@ -111,8 +115,9 @@ export function PracticePage() {
   const selectedDescription = useMemo(() => {
     const topicName = optionLabel(builderOptions.topics, topic);
     const questionCount = count === 'recommended' ? `${getRecommendedCount(mode, year)} questions recommended` : `${count} questions`;
-    return `${MODE_COPY[mode].title} · ${topicName} · Year ${year} level · ${questionCount} · All question types`;
-  }, [builderOptions.topics, count, mode, topic, year]);
+    const difficultyName = difficulty === 'adaptive' ? 'Adaptive difficulty' : `Difficulty ${difficulty}`;
+    return `${MODE_COPY[mode].title} · ${topicName} · Year ${year} level · ${questionCount} · ${difficultyName} · All question types`;
+  }, [builderOptions.topics, count, difficulty, mode, topic, year]);
 
   async function generatePractice() {
     setIsLoading(true);
@@ -125,7 +130,7 @@ export function PracticePage() {
         year: String(year),
         count: resolvedCount,
         topic,
-        difficulty: 'adaptive',
+        difficulty,
         questionType: 'all',
         questionStyle: mode === 'topic-test' ? 'gcse-exam-style' : 'all',
         mode,
@@ -211,6 +216,20 @@ export function PracticePage() {
 
         <WeakTopicsPanel />
 
+        <section className="card section learning-journey-card">
+          <div>
+            <p className="small-muted">Best way to use GCSE Hub</p>
+            <h2>Follow the learning journey</h2>
+            <p>Start with Recommended Practice, then use Practice by Topic when a specific area needs attention. Use Test mode when the child is ready to check understanding without hints.</p>
+          </div>
+          <ol className="learning-steps">
+            <li><strong>1. Recommended</strong><span>Let GCSE Hub pick topics from the child&apos;s level.</span></li>
+            <li><strong>2. Practise</strong><span>Check each answer and read the worked solution.</span></li>
+            <li><strong>3. Topic focus</strong><span>Choose a topic and difficulty for extra practice.</span></li>
+            <li><strong>4. Test</strong><span>Submit once at the end and review the score.</span></li>
+          </ol>
+        </section>
+
         <section className="card section practice-builder simple-practice-builder">
           <div className="section-title compact-title">
             <h2>Generate work</h2>
@@ -253,19 +272,31 @@ export function PracticePage() {
                 <option value="30">30 questions</option>
               </select>
             </label>
+
+            <label className="field">
+              <span>Difficulty level</span>
+              <select value={difficulty} onChange={(event) => setDifficulty(event.target.value as SimpleDifficulty)}>
+                <option value="adaptive">Adaptive - recommended</option>
+                <option value="1">Easy</option>
+                <option value="2">Developing</option>
+                <option value="3">Secure</option>
+                <option value="4">GCSE challenge</option>
+                <option value="5">Stretch / Higher</option>
+              </select>
+            </label>
           </div>
 
           <div className="builder-actions">
             <button className="btn btn-primary" onClick={generatePractice} disabled={isLoading}>
               {isLoading ? 'Generating…' : MODE_COPY[mode].button}
             </button>
-            <button className="btn btn-secondary" onClick={() => { setTopic('all'); setMode('practice'); setCount('recommended'); }}>
+            <button className="btn btn-secondary" onClick={() => { setTopic('all'); setMode('practice'); setCount('recommended'); setDifficulty('adaptive'); }}>
               Reset to recommended
             </button>
           </div>
 
           <p className="small-muted">
-            Difficulty, question style and question type are selected automatically using the student profile. Question type uses All by default for a balanced mix.
+            Question type is All by default for a balanced mix. Use the topic and difficulty controls only when the child wants targeted practice.
           </p>
           {error && <p className="error">{error}</p>}
         </section>
@@ -280,9 +311,17 @@ export function PracticePage() {
               <span>Year {summary.year} level</span>
               <span>All question types</span>
               <span>{mode === 'practice' ? `${completed}/${questions.length} checked` : testResults ? 'Test submitted' : 'Ready to start'}</span>
+              <span>{difficulty === 'adaptive' ? 'Adaptive difficulty' : `Difficulty ${difficulty}`}</span>
               {mode === 'practice' && completed > 0 && <span>{practiceScore}/{checkedPracticeTotal} marks so far</span>}
               {mode === 'practice' && completed > 0 && <span>{practicePercentage}% score</span>}
               {mode === 'topic-test' && testResults && <span>{testScore}/{testTotal} marks · {testPercentage}%</span>}
+            </div>
+            <div className="session-progress" aria-label="Session progress">
+              <div className="session-progress-header">
+                <span>{mode === 'practice' ? 'Practice progress' : testResults ? 'Test complete' : 'Test ready'}</span>
+                <strong>{mode === 'practice' ? `${completed}/${questions.length}` : testResults ? `${testResults.length}/${questions.length}` : `0/${questions.length}`}</strong>
+              </div>
+              <div className="progress-track"><span style={{ width: `${questions.length ? Math.round(((mode === 'practice' ? completed : testResults ? testResults.length : 0) / questions.length) * 100) : 0}%` }} /></div>
             </div>
           </section>
         )}
@@ -300,6 +339,7 @@ export function PracticePage() {
             <div className="score-breakdown">
               <span>Checked: {completed}/{questions.length}</span>
               <span>Total paper marks: {practiceTotal}</span>
+              <span>{practiceComplete ? 'Next: try a topic test' : 'Next: finish all questions'}</span>
             </div>
           </section>
         )}
@@ -314,6 +354,7 @@ export function PracticePage() {
             <div className="score-breakdown">
               <span>{testPercentage >= 80 ? 'Excellent work' : testPercentage >= 60 ? 'Good progress' : 'Keep practising'}</span>
               <span>Review the worked solutions below.</span>
+              <span>Next: practise weak questions by topic.</span>
             </div>
           </section>
         )}
