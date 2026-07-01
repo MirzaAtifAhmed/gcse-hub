@@ -3,7 +3,12 @@ import mongoose from 'mongoose';
 
 const router = Router();
 
-const readyStateLabels = ['disconnected', 'connected', 'connecting', 'disconnecting'] as const;
+const readyStateLabels: Record<number, string> = {
+  0: 'disconnected',
+  1: 'connected',
+  2: 'connecting',
+  3: 'disconnecting',
+};
 
 function getMongoState() {
   const readyState = mongoose.connection.readyState;
