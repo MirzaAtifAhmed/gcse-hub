@@ -82,7 +82,7 @@ export function SystemStatusPage() {
 
       setEndpoint('/health/mongo');
       setHealth(res.data);
-
+      console.log('res', res);
       if (res.status >= 200 && res.status < 300 && isMongoConnected(res.data)) {
         setState('online');
       } else if (res.status >= 200 && res.status < 500) {
