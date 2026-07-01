@@ -24,6 +24,16 @@ const promoteSchema = z.object({
   currentYear: z.number().min(7).max(11),
 });
 
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8),
+    confirmPassword: z.string().min(8),
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
 export async function listChildren(req: Request, res: Response) {
   const children = await User.find({ parentId: req.user?.id, role: 'student' }).sort({
     createdAt: -1,
@@ -79,4 +89,24 @@ export async function promoteChild(req: Request, res: Response) {
   }
 
   return res.json({ success: true, data: toChildProfile(child) });
+}
+
+export async function resetChildPassword(req: Request, res: Response) {
+  const body = resetPasswordSchema.parse(req.body);
+  const childId = req.params.childId;
+
+  if (!mongoose.Types.ObjectId.isValid(childId)) {
+    return res.status(400).json({ success: false, message: 'Invalid child id' });
+  }
+
+  const child = await User.findOne({ _id: childId, parentId: req.user?.id, role: 'student' });
+
+  if (!child) {
+    return res.status(404).json({ success: false, message: 'Child not found' });
+  }
+
+  child.passwordHash = await bcrypt.hash(body.password, 12);
+  await child.save();
+
+  return res.json({ success: true, message: 'Child password reset successfully' });
 }

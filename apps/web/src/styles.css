@@ -1480,3 +1480,22 @@ th {
     grid-template-columns: 1fr;
   }
 }
+
+
+.reset-password-form,
+.password-reset-card {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  background: #f8fafc;
+}
+
+.reset-password-form h4,
+.password-reset-card h3 {
+  margin: 0 0 6px;
+}
+
+.password-reset-card {
+  grid-column: 1 / -1;
+}

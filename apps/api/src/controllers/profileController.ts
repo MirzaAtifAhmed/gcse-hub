@@ -113,3 +113,10 @@ export async function updateChildProfile(req: Request, res: Response) {
   if (!updated) return res.status(404).json({ success: false, message: 'Child not found' });
   return res.json({ success: true, data: toChildProfile(updated) });
 }
+
+export async function getChildProfile(req: Request, res: Response) {
+  const child = await User.findOne({ _id: req.params.childId, parentId: req.user?.id, role: 'student' });
+  if (!child) return res.status(404).json({ success: false, message: 'Child not found' });
+
+  return res.json({ success: true, data: toProfileSettings(child) });
+}

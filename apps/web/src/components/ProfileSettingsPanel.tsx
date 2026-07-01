@@ -1,6 +1,7 @@
 import type { ProfileSettings } from '@gcse-hub/types';
 import { type FormEvent, useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const learningPreferenceOptions = [
   { value: 'worked-examples', label: 'Worked examples' },
@@ -22,7 +23,14 @@ export function ProfileSettingsPanel({ onSaved }: ProfileSettingsPanelProps) {
     api
       .get('/profile/me')
       .then((res) => setProfile(res.data.data))
-      .catch(() => setError('Could not load profile settings.'));
+      .catch((err) =>
+        setError(
+          getApiErrorMessage(err, {
+            fallback: 'Could not load profile settings.',
+            offline: 'Cannot connect to GCSE Hub API. Please try again when the server is available.',
+          }),
+        ),
+      );
   }, []);
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
@@ -51,8 +59,46 @@ export function ProfileSettingsPanel({ onSaved }: ProfileSettingsPanelProps) {
       setProfile(res.data.data.profile);
       setMessage('Profile updated. Your practice, tests and planner will use these settings.');
       onSaved?.();
-    } catch {
-      setError('Could not save profile. Please check the fields and try again.');
+    } catch (err) {
+      setError(
+        getApiErrorMessage(err, {
+          fallback: 'Could not save profile. Please check the fields and try again.',
+          offline: 'Cannot connect to GCSE Hub API, so the profile was not saved. Please try again when the server is available.',
+        }),
+      );
+    }
+  }
+
+  async function changePassword(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage('');
+    setError('');
+
+    const form = new FormData(event.currentTarget);
+    const currentPassword = String(form.get('currentPassword') ?? '');
+    const password = String(form.get('password') ?? '');
+    const confirmPassword = String(form.get('confirmPassword') ?? '');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    try {
+      await api.patch('/auth/password', {
+        currentPassword,
+        password,
+        confirmPassword,
+      });
+      event.currentTarget.reset();
+      setMessage('Password updated successfully.');
+    } catch (err) {
+      setError(
+        getApiErrorMessage(err, {
+          fallback: 'Could not update password. Please check the details and try again.',
+          offline: 'Cannot connect to GCSE Hub API, so the password was not changed. Please try again when the server is available.',
+        }),
+      );
     }
   }
 
@@ -161,6 +207,26 @@ export function ProfileSettingsPanel({ onSaved }: ProfileSettingsPanelProps) {
         <div className="profile-actions">
           <button className="btn btn-primary" type="submit">Save profile</button>
         </div>
+      </form>
+
+      <form className="password-reset-card" onSubmit={changePassword}>
+        <h3>Change password</h3>
+        <p className="small-muted">Update your own login password. Enter your current password, then choose a new one.</p>
+        <div className="grid grid-3">
+          <div className="field">
+            <label>Current password</label>
+            <input name="currentPassword" type="password" required />
+          </div>
+          <div className="field">
+            <label>New password</label>
+            <input name="password" type="password" minLength={8} required />
+          </div>
+          <div className="field">
+            <label>Confirm new password</label>
+            <input name="confirmPassword" type="password" minLength={8} required />
+          </div>
+        </div>
+        <button className="btn btn-secondary" type="submit">Change password</button>
       </form>
     </section>
   );

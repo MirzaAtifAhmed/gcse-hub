@@ -22,6 +22,7 @@ import { QuestionDiagram } from '../components/questions/QuestionDiagram';
 import { AdaptiveLearningPanel } from '../components/AdaptiveLearningPanel';
 import { ProfileSettingsPanel } from '../components/ProfileSettingsPanel';
 import { api } from '../lib/api';
+import { getApiErrorMessage } from '../utils/apiError';
 
 type PracticeQuestion = QuestionTemplate | GeneratedQuestion;
 
@@ -140,8 +141,13 @@ export function DashboardPage() {
       event.currentTarget.reset();
       setMessage('Child profile created.');
       await loadDashboard();
-    } catch {
-      setChildError('Could not create child profile. The email may already be registered.');
+    } catch (error) {
+      setChildError(
+        getApiErrorMessage(error, {
+          fallback: 'Could not create child profile. Please check the details and try again.',
+          offline: 'Cannot connect to GCSE Hub API, so the child account was not created. Please try again when the server is available.',
+        }),
+      );
     }
   }
 
@@ -151,26 +157,31 @@ export function DashboardPage() {
     await loadDashboard();
   }
 
-  async function updateChildLearningProfile(event: FormEvent<HTMLFormElement>, childId: string) {
+  async function resetChildPassword(event: FormEvent<HTMLFormElement>, childId: string) {
     event.preventDefault();
     setMessage('');
     setChildError('');
 
     const form = new FormData(event.currentTarget);
+    const password = String(form.get('password'));
+    const confirmPassword = String(form.get('confirmPassword'));
+
+    if (password !== confirmPassword) {
+      setChildError('Passwords do not match.');
+      return;
+    }
 
     try {
-      await api.patch(`/children/${childId}/profile`, {
-        currentYear: Number(form.get('currentYear')),
-        currentLevel: Number(form.get('currentLevel')),
-        target: String(form.get('target')),
-        targetGrade: Number(form.get('targetGrade')),
-        examBoard: String(form.get('examBoard')),
-        studyGoalMinutesPerDay: Number(form.get('studyGoalMinutesPerDay')),
-      });
-      setMessage('Child learning profile updated.');
-      await loadDashboard();
-    } catch {
-      setChildError('Could not update child learning profile.');
+      await api.patch(`/children/${childId}/password`, { password, confirmPassword });
+      event.currentTarget.reset();
+      setMessage('Child password reset successfully.');
+    } catch (error) {
+      setChildError(
+        getApiErrorMessage(error, {
+          fallback: 'Could not reset child password. Please try again.',
+          offline: 'Cannot connect to GCSE Hub API, so the password was not reset. Please try again when the server is available.',
+        }),
+      );
     }
   }
 
@@ -476,6 +487,10 @@ export function DashboardPage() {
 
             <section className="card">
               <h2>Children</h2>
+              <p className="small-muted">
+                Manage child accounts here. Use the Learning Profile page for detailed year, tier,
+                target grade, exam board and study goal settings.
+              </p>
               <div className="grid">
                 {summary.children.length === 0 && <p>No children added yet.</p>}
                 {summary.children.map((child) => (
@@ -485,64 +500,13 @@ export function DashboardPage() {
                     <p>
                       Year {child.currentYear} · Target: {child.target} · Working level: Year{' '}
                       {child.currentLevel ?? child.currentYear}
+                      {child.targetGrade ? ` · Target grade: ${child.targetGrade}` : ''}
                     </p>
-                    <form
-                      className="child-profile-form"
-                      onSubmit={(event) => updateChildLearningProfile(event, child.id)}
-                    >
-                      <div className="field">
-                        <label>Year</label>
-                        <select name="currentYear" defaultValue={child.currentYear}>
-                          {[7, 8, 9, 10, 11].map((year) => (
-                            <option value={year} key={year}>Year {year}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="field">
-                        <label>Working level</label>
-                        <select name="currentLevel" defaultValue={child.currentLevel ?? child.currentYear}>
-                          {[7, 8, 9, 10, 11].map((year) => (
-                            <option value={year} key={year}>Year {year}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="field">
-                        <label>Tier</label>
-                        <select name="target" defaultValue={child.target ?? 'undecided'}>
-                          <option value="undecided">Undecided</option>
-                          <option value="foundation">Foundation</option>
-                          <option value="higher">Higher</option>
-                        </select>
-                      </div>
-                      <div className="field">
-                        <label>Target grade</label>
-                        <select name="targetGrade" defaultValue={child.targetGrade ?? 5}>
-                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((grade) => (
-                            <option value={grade} key={grade}>Grade {grade}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="field">
-                        <label>Exam board</label>
-                        <select name="examBoard" defaultValue={child.examBoard ?? 'mixed'}>
-                          <option value="mixed">Mixed</option>
-                          <option value="aqa">AQA</option>
-                          <option value="edexcel">Edexcel</option>
-                          <option value="ocr">OCR</option>
-                        </select>
-                      </div>
-                      <div className="field">
-                        <label>Daily goal</label>
-                        <select name="studyGoalMinutesPerDay" defaultValue={child.studyGoalMinutesPerDay ?? 30}>
-                          <option value="15">15 mins</option>
-                          <option value="30">30 mins</option>
-                          <option value="45">45 mins</option>
-                          <option value="60">60 mins</option>
-                        </select>
-                      </div>
-                      <button className="btn btn-secondary" type="submit">Save profile</button>
-                    </form>
+
                     <div className="nav-links">
+                      <Link className="btn btn-secondary" to={`/children/${child.id}/profile`}>
+                        Learning profile
+                      </Link>
                       <button
                         className="btn btn-secondary"
                         onClick={() => promoteChild(child)}
@@ -554,6 +518,26 @@ export function DashboardPage() {
                         View report
                       </button>
                     </div>
+
+                    <form className="reset-password-form" onSubmit={(event) => resetChildPassword(event, child.id)}>
+                      <h4>Reset child password</h4>
+                      <p className="small-muted">
+                        Set a new temporary password for this child. They can use it to log in straight away.
+                      </p>
+                      <div className="grid grid-2">
+                        <div className="field">
+                          <label>New password</label>
+                          <input name="password" type="password" minLength={8} required />
+                        </div>
+                        <div className="field">
+                          <label>Confirm password</label>
+                          <input name="confirmPassword" type="password" minLength={8} required />
+                        </div>
+                      </div>
+                      <button className="btn btn-secondary" type="submit">
+                        Reset password
+                      </button>
+                    </form>
                   </article>
                 ))}
               </div>

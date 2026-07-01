@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
+import { getApiErrorMessage } from '../utils/apiError';
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -16,8 +17,13 @@ export function LoginPage() {
     try {
       const user = await login(String(form.get('email')), String(form.get('password')));
       navigate(user.role === 'admin' ? '/admin' : '/dashboard');
-    } catch {
-      setError('Invalid email or password');
+    } catch (error) {
+      setError(
+        getApiErrorMessage(error, {
+          fallback: 'Invalid email or password',
+          offline: 'Cannot connect to GCSE Hub API. Please try again when the server is available.',
+        }),
+      );
     }
   }
 

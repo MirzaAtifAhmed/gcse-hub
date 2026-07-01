@@ -17,6 +17,7 @@ import { SubjectExpansionPage } from './pages/SubjectExpansionPage';
 import { TeacherWorkspacePage } from './pages/TeacherWorkspacePage';
 import { WorksheetBuilderPage } from './pages/WorksheetBuilderPage';
 import { SystemStatusPage } from './pages/SystemStatusPage';
+import { ChildLearningProfilePage } from './pages/ChildLearningProfilePage';
 
 
 function DashboardRedirect() {
@@ -37,6 +38,7 @@ export function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
+      <Route path="/children/:childId/profile" element={<ProtectedRoute roles={['parent']}><ChildLearningProfilePage /></ProtectedRoute>} />
       <Route path="/practice" element={<ProtectedRoute roles={['student']}><PracticePage /></ProtectedRoute>} />
       <Route path="/curriculum" element={<ProtectedRoute><CurriculumPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute roles={['admin']}><AdminPage /></ProtectedRoute>} />

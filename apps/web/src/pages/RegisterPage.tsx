@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
+import { getApiErrorMessage } from '../utils/apiError';
 
 export function RegisterPage() {
   const { register } = useAuth();
@@ -32,8 +33,13 @@ export function RegisterPage() {
         currentYear: role === 'student' ? Number(form.get('currentYear')) : undefined,
       });
       navigate('/dashboard');
-    } catch {
-      setError('Could not create account. The email may already be registered.');
+    } catch (error) {
+      setError(
+        getApiErrorMessage(error, {
+          fallback: 'Could not create account. Please check the details and try again.',
+          offline: 'Cannot connect to GCSE Hub API, so the account was not created. Please try again when the server is available.',
+        }),
+      );
     }
   }
 

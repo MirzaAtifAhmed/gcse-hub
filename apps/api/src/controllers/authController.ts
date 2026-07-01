@@ -26,6 +26,17 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const updatePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1),
+    password: z.string().min(8),
+    confirmPassword: z.string().min(8),
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
 function setAuthCookie(res: Response, token: string) {
   res.cookie('token', token, {
     httpOnly: true,
@@ -83,6 +94,24 @@ export async function me(req: Request, res: Response) {
   }
 
   return res.json({ success: true, data: toAuthUser(user) });
+}
+
+export async function updatePassword(req: Request, res: Response) {
+  const body = updatePasswordSchema.parse(req.body);
+  const user = await User.findById(req.user?.id);
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'User not found' });
+  }
+
+  if (!(await user.comparePassword(body.currentPassword))) {
+    return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+  }
+
+  user.passwordHash = await bcrypt.hash(body.password, 12);
+  await user.save();
+
+  return res.json({ success: true, message: 'Password updated successfully' });
 }
 
 export async function logout(_req: Request, res: Response) {
