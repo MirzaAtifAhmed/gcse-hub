@@ -2,18 +2,23 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 
-type HealthResponse = {
-  success: boolean;
-  status: string;
+type MongoHealthResponse = {
+  success?: boolean;
+  status?: string;
   service?: string;
-  version?: string;
-  environment?: string;
   database?: string;
   mongodb?: string;
-  mongo?: { connected: boolean; readyState: number; state: string; databaseName?: string | null; host?: string | null };
   mongoPing?: boolean;
-  databaseName?: string;
-  host?: string;
+  readyState?: number;
+  databaseName?: string | null;
+  host?: string | null;
+  mongo?: {
+    connected?: boolean;
+    readyState?: number;
+    state?: string;
+    databaseName?: string | null;
+    host?: string | null;
+  };
   message?: string;
   timestamp?: string;
 };
@@ -31,10 +36,29 @@ function formatDate(value?: string) {
   }).format(new Date(value));
 }
 
+function isMongoConnected(data: MongoHealthResponse | null) {
+  if (!data) {
+    return false;
+  }
+
+  return (
+    data.success === true &&
+    (data.mongoPing === true ||
+      data.readyState === 1 ||
+      data.database === 'connected' ||
+      data.mongodb === 'connected' ||
+      data.mongodb === 'ok' ||
+      data.mongo?.connected === true ||
+      data.mongo?.readyState === 1 ||
+      data.mongo?.state === 'connected')
+  );
+}
+
 export function SystemStatusPage() {
   const [state, setState] = useState<CheckState>('idle');
-  const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [health, setHealth] = useState<MongoHealthResponse | null>(null);
   const [error, setError] = useState('');
+  const [endpoint, setEndpoint] = useState('/health/mongo');
 
   const apiUrl = useMemo(() => {
     const baseUrl = api.defaults.baseURL ?? '';
@@ -46,16 +70,19 @@ export function SystemStatusPage() {
     setError('');
 
     try {
-      const res = await api.get<HealthResponse>('/health', {
+      // The API supports both /health/mongo and /api/health/mongo.
+      // The axios base URL decides which final URL is used:
+      // - VITE_API_URL=https://api.example.com      -> /health/mongo
+      // - VITE_API_URL=https://api.example.com/api  -> /api/health/mongo
+      const res = await api.get<MongoHealthResponse>('/health/mongo', {
         timeout: 12_000,
         validateStatus: () => true,
       });
 
+      setEndpoint('/health/mongo');
       setHealth(res.data);
 
-      const mongoConnected = res.data.mongo?.connected || res.data.mongoPing || res.data.mongodb === 'connected';
-
-      if (res.status >= 200 && res.status < 300 && res.data.success && mongoConnected) {
+      if (res.status >= 200 && res.status < 300 && isMongoConnected(res.data)) {
         setState('online');
       } else if (res.status >= 200 && res.status < 500) {
         setState('degraded');
@@ -72,6 +99,12 @@ export function SystemStatusPage() {
   useEffect(() => {
     runCheck();
   }, []);
+
+  const mongoConnected = isMongoConnected(health);
+  const databaseName = health?.databaseName ?? health?.mongo?.databaseName ?? '-';
+  const host = health?.host ?? health?.mongo?.host ?? '-';
+  const readyState = health?.readyState ?? health?.mongo?.readyState;
+  const mongoState = health?.database ?? health?.mongodb ?? health?.mongo?.state ?? (mongoConnected ? 'connected' : '-');
 
   const statusLabel =
     state === 'online'
@@ -109,24 +142,32 @@ export function SystemStatusPage() {
             <dd>{apiUrl}</dd>
           </div>
           <div>
+            <dt>Endpoint</dt>
+            <dd>{endpoint}</dd>
+          </div>
+          <div>
             <dt>API status</dt>
             <dd>{health?.status ?? (state === 'offline' ? 'offline' : '-')}</dd>
           </div>
           <div>
             <dt>MongoDB state</dt>
-            <dd>{health?.database ?? health?.mongodb ?? health?.mongo?.state ?? '-'}</dd>
+            <dd>{mongoState}</dd>
           </div>
           <div>
             <dt>MongoDB ping</dt>
-            <dd>{health?.mongoPing || health?.mongo?.connected ? 'Passed' : health ? 'Failed' : '-'}</dd>
+            <dd>{mongoConnected ? 'Passed' : health ? 'Failed' : '-'}</dd>
+          </div>
+          <div>
+            <dt>Ready state</dt>
+            <dd>{readyState ?? '-'}</dd>
           </div>
           <div>
             <dt>Database</dt>
-            <dd>{health?.databaseName ?? health?.mongo?.databaseName ?? '-'}</dd>
+            <dd>{databaseName}</dd>
           </div>
           <div>
             <dt>Host</dt>
-            <dd>{health?.host ?? health?.mongo?.host ?? '-'}</dd>
+            <dd>{host}</dd>
           </div>
           <div>
             <dt>Checked at</dt>
